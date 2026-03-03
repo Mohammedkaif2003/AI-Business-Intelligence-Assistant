@@ -1,31 +1,71 @@
-import streamlit as st
-import pandas as pd
-from modules.visualization import plot_bar
+import matplotlib
+matplotlib.use("Agg")  # Required for Streamlit Cloud
+
+import matplotlib.pyplot as plt
 
 
-def auto_visualize(df):
+# --------------------------------------------------
+# BAR CHART
+# --------------------------------------------------
+def plot_bar(df, x_col, y_col, title="Bar Chart"):
 
-    if df is None or df.empty:
-        st.info("No data available.")
-        return
+    fig, ax = plt.subplots(figsize=(8, 5))
 
-    # If single numeric value
-    if df.shape == (1, 1):
-        value = df.iloc[0, 0]
-        st.metric("Result", f"{value:,}")
-        return
+    ax.bar(df[x_col], df[y_col])
+    ax.set_title(title)
+    ax.set_xlabel(x_col)
+    ax.set_ylabel(y_col)
 
-    # If at least 2 columns and first is categorical + second numeric
-    if df.shape[1] >= 2:
+    ax.grid(alpha=0.3)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
 
-        col1 = df.columns[0]
-        col2 = df.columns[1]
+    return fig
 
-        if pd.api.types.is_numeric_dtype(df[col2]):
 
-            fig = plot_bar(df, col1, col2, f"{col2} by {col1}")
-            st.pyplot(fig)
-            return
+# --------------------------------------------------
+# FORECAST LINE CHART
+# --------------------------------------------------
+def plot_forecast(monthly_data, forecast, conf_int=None):
 
-    # Fallback
-    st.dataframe(df)
+    fig, ax = plt.subplots(figsize=(10, 5))
+
+    # Historical
+    ax.plot(monthly_data.index, monthly_data.values, label="Historical")
+
+    # Forecast
+    ax.plot(forecast.index, forecast.values, label="Forecast")
+
+    # Confidence Interval
+    if conf_int is not None:
+        ax.fill_between(
+            forecast.index,
+            conf_int.iloc[:, 0],
+            conf_int.iloc[:, 1],
+            alpha=0.2
+        )
+
+    ax.legend()
+    ax.grid(alpha=0.3)
+    plt.tight_layout()
+
+    return fig
+
+
+# --------------------------------------------------
+# PIE CHART
+# --------------------------------------------------
+def plot_pie(df, label_col, value_col):
+
+    fig, ax = plt.subplots(figsize=(6, 6))
+
+    ax.pie(
+        df[value_col],
+        labels=df[label_col],
+        autopct="%1.1f%%"
+    )
+
+    ax.set_title("Distribution")
+    plt.tight_layout()
+
+    return fig
