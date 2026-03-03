@@ -41,7 +41,6 @@ st.sidebar.header("⚙ Dashboard Controls")
 
 years_df = run_query("SELECT DISTINCT Year FROM sales ORDER BY Year")
 available_years = years_df["Year"].tolist()
-
 selected_year = st.sidebar.selectbox("Select Year", available_years)
 
 # =====================================================
@@ -91,6 +90,7 @@ with tab1:
     ORDER BY total_revenue DESC
     LIMIT 1
     """
+
     region_data = run_query(region_query, {"year": selected_year})
     top_region = region_data["Region"].iloc[0] if not region_data.empty else "N/A"
 
@@ -186,8 +186,6 @@ with tab2:
                     f"Risk Level: {risk_level}"
                 )
 
-                st.pyplot(plot_forecast(history, forecast, conf_int))
-
             else:
                 response_text = "Sorry, I didn't understand that question."
 
@@ -198,54 +196,54 @@ with tab2:
         with st.chat_message("assistant"):
             st.write(response_text)
 
+            # -------- RANKING --------
             if intent == "ranking" and result is not None and not result.empty:
 
-    st.dataframe(result)
+                st.dataframe(result)
 
-    if "Product" in result.columns and "Total_Revenue" in result.columns:
-        fig = plot_bar(
-            result,
-            "Product",
-            "Total_Revenue",
-            f"Top Products in {year}"
-        )
-        st.pyplot(fig)
+                if "Product" in result.columns and "Total_Revenue" in result.columns:
+                    st.pyplot(plot_bar(result, "Product", "Total_Revenue",
+                                       f"Top Products in {year}"))
 
-        if "Contribution_%" in result.columns:
-            pie_fig = plot_pie(
-                result,
-                "Product",
-                "Contribution_%"
-            )
-            st.pyplot(pie_fig)
+                    if "Contribution_%" in result.columns:
+                        st.pyplot(plot_pie(result, "Product", "Contribution_%"))
 
-        st.success(generate_executive_insight(result))
+                    st.success(generate_executive_insight(result))
 
-    else:
-        st.info("Chart not available for this result structure.")
+            # -------- GROWTH --------
+            elif intent == "growth" and result is not None and not result.empty:
+
+                st.dataframe(result)
+
+                if "Region" in result.columns and "Total_Revenue" in result.columns:
+                    st.pyplot(plot_bar(result, "Region", "Total_Revenue",
+                                       f"Revenue by Region in {year}"))
+
+                    st.success(generate_executive_insight(result))
+
+            # -------- FORECAST --------
+            elif intent == "forecast":
+                st.pyplot(plot_forecast(history, forecast, conf_int))
+
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
 with tab3:
     st.markdown("## 📄 Executive Reports")
 
-    if "last_query" in st.session_state:
+    if st.button("📥 Generate Executive PDF Report"):
 
-        if st.button("📥 Generate Executive PDF Report"):
+        file_path = generate_pdf(
+            query="Executive BI Summary",
+            summary_text="AI Generated Executive Business Report",
+            dataframe=None,
+            forecast_value=None
+        )
 
-            file_path = generate_pdf(
-                query=st.session_state["last_query"],
-                summary_text=generate_summary(st.session_state["last_query"]),
-                dataframe=st.session_state.get("last_result"),
-                forecast_value=None
+        with open(file_path, "rb") as file:
+            st.download_button(
+                label="Click to Download",
+                data=file,
+                file_name="AI_Executive_Report.pdf",
+                mime="application/pdf"
             )
-
-            with open(file_path, "rb") as file:
-                st.download_button(
-                    label="Click to Download",
-                    data=file,
-                    file_name="AI_Executive_Report.pdf",
-                    mime="application/pdf"
-                )
-    else:
-        st.info("Run a query first to generate report.")
