@@ -175,7 +175,7 @@ with tab2:
 
             elif intent == "forecast":
 
-                history, forecast, conf_int, risk_level, volatility, trend = forecast_revenue()
+                history, forecast, risk_level, volatility, trend = forecast_revenue()nue()
 
                 latest_prediction = forecast.iloc[-1]
 
@@ -201,8 +201,9 @@ with tab2:
                 st.dataframe(result)
                 auto_visualize(result)
 
-            elif intent == "forecast":
-                st.pyplot(plot_forecast(history, forecast, conf_int))          
+             elif intent == "forecast":
+                 fig = plot_forecast(history, forecast)
+                 st.pyplot(fig)         
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
