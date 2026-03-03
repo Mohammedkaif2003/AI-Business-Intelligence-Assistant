@@ -1,4 +1,6 @@
 import streamlit as st
+if "last_entities" not in st.session_state:
+    st.session_state["last_entities"] = {}
 st.markdown("""
 <style>
 .big-title {
@@ -130,72 +132,85 @@ query = st.chat_input("Ask your business question...")
 
 if query:
 
+    with st.chat_message("user"):
+        st.write(query)
+
     intent = detect_intent(query)
     entities = extract_entities(query)
 
+    # Save memory
+    if entities:
+        st.session_state["last_entities"].update(entities)
+
+    # Use memory fallback
+    year = entities.get("year") or st.session_state["last_entities"].get("year") or selected_year
+    region = entities.get("region") or st.session_state["last_entities"].get("region")
+
     year = entities.get("year", selected_year)
     region = entities.get("region")
-    product = entities.get("product")
-    if year is None:
-        year = selected_year
 
     result = None
     predicted_value = None
     response_text = ""
 
-    # -------- INTENT LOGIC --------
-    if intent == "top_products":
-        result = top_products(year)
-        response_text = f"Here are the top products for {year}."
+    try:
+        # -------- INTENT LOGIC --------
+        if intent == "ranking":
+            result = top_products(year)
+            response_text = f"Here are the top products for {year}."
 
-    elif intent == "total_sales":
-        result = total_sales(year)
-        total_value = result["Total_Sales"].iloc[0]
-        response_text = f"Total sales in {year} is {total_value:,}."
+        elif intent == "sales":
+            result = total_sales(year)
+            total_value = result["Total_Sales"].iloc[0]
+            response_text = f"Total sales in {year} is {total_value:,}."
 
-    elif intent == "region_sales":
-        result = revenue_by_region(year, region)
-        response_text = f"Here is revenue breakdown by region for {year}."
+        elif intent == "growth":
+            result = revenue_by_region(year, region)
+            response_text = f"Here is revenue breakdown by region for {year}."
 
-    elif intent == "forecast":
-        history, forecast, risk_level, volatility, trend = forecast_revenue()
-        predicted_value = forecast.iloc[0]
-        response_text = (
-    f"Predicted revenue for next month is {round(predicted_value,2)}.\n\n"
-    f"Trend: {trend}\n"
-    f"Volatility: {volatility}%\n"
-    f"Forecast Risk Level: {risk_level}"
-)
+        elif intent == "forecast":
+            history, forecast, risk_level, volatility, trend = forecast_revenue()
+            predicted_value = forecast.iloc[0]
 
-    else:
-        response_text = "Sorry, I didn't understand that question."
+            response_text = (
+                f"Predicted revenue for next month is {round(predicted_value,2)}.\n\n"
+                f"Trend: {trend}\n"
+                f"Volatility: {volatility}%\n"
+                f"Forecast Risk Level: {risk_level}"
+            )
 
-    with st.chat_message("user"):
-        st.write(query)
-    st.session_state.chat_history.append(("user", query))
-    st.session_state.chat_history.append(("assistant", response_text))
+        else:
+            response_text = "Sorry, I didn't understand that question."
+
+    except Exception:
+        st.error("Unable to process this query.")
+        response_text = "Error occurred while processing."
 
     with st.chat_message("assistant"):
         st.write(response_text)
 
-        if intent == "top_products" and result is not None:
+        # -------- VISUALIZATION --------
+        if intent == "ranking" and result is not None:
             st.dataframe(result)
-            fig = plot_bar(result, f"Top Products in {year}")
+
+            fig = plot_bar(result, "Product", "Total_Revenue",
+                           f"Top Products in {year}")
             st.pyplot(fig)
 
-            pie_fig = plot_pie(result, "Revenue Contribution Share")
+            pie_fig = plot_pie(result, "Product", "Contribution_%",
+                               "Revenue Contribution Share")
             st.pyplot(pie_fig)
 
-            # ✅ Add insight here
             insight_text = generate_executive_insight(result)
             st.success(insight_text)
 
-        elif intent == "region_sales" and result is not None:
+        elif intent == "growth" and result is not None:
             st.dataframe(result)
-            fig = plot_bar(result, f"Revenue by Region in {year}")
+
+            fig = plot_bar(result, "Region", "Total_Revenue",
+                           f"Revenue by Region in {year}")
             st.pyplot(fig)
 
-            # Optional: add insight here too
             insight_text = generate_executive_insight(result)
             st.success(insight_text)
 
@@ -203,13 +218,11 @@ if query:
             fig = plot_forecast(history, forecast)
             st.pyplot(fig)
 
-             # ---- Anomaly Detection ----
             from modules.analytics_engine import detect_revenue_anomalies
-
             monthly_data, anomalies = detect_revenue_anomalies()
 
             if not anomalies.empty:
-                st.warning("⚠ Revenue anomaly detected in the following months:")
+                st.warning("⚠ Revenue anomaly detected in:")
                 st.write(anomalies)
 
     summary = generate_summary(query)
@@ -218,12 +231,10 @@ if query:
         st.markdown("## 📄 Executive Reports")
         if st.button("📥 Generate Executive PDF Report"):
 
-            pdf_data = result if result is not None else None
-
             file_path = generate_pdf(
                 query=query,
                 summary_text=summary,
-                dataframe=pdf_data,
+                dataframe=result,
                 forecast_value=predicted_value
             )
 
@@ -234,10 +245,3 @@ if query:
                     file_name="AI_Executive_Report.pdf",
                     mime="application/pdf"
                 )
-
-# ------------------ DISPLAY CHAT HISTORY ------------------
-for role, message in st.session_state.chat_history:
-    if role == "user":
-        with st.chat_message("user"):
-            st.write(message)
-
