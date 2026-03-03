@@ -10,9 +10,15 @@ if "chat_history" not in st.session_state:
 # ---------------- STYLING ----------------
 st.markdown("""
 <style>
-.big-title { font-size:28px !important; font-weight:600; }
-.metric-card { background-color:#f0f2f6; padding:15px; border-radius:10px; }
-.stMetric { background-color:#111827; padding:15px; border-radius:12px; }
+.stMetric {
+    background-color:#1f2937;
+    padding:15px;
+    border-radius:12px;
+    color:white !important;
+}
+.stMetric label {
+    color:white !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
