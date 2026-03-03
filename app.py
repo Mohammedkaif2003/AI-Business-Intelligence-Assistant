@@ -120,6 +120,9 @@ with tab1:
 # =====================================================
 # ================= AI CHAT ===========================
 # =====================================================
+# =====================================================
+# ================= AI CHAT ===========================
+# =====================================================
 with tab2:
 
     st.markdown("## 💬 Ask Business Question")
@@ -180,7 +183,7 @@ with tab2:
                 latest_prediction = forecast.iloc[-1]
 
                 response_text = (
-                    f"📊 6-Month Forecast\n\n"
+                    f"📊 Forecast\n\n"
                     f"Latest Prediction: {round(latest_prediction,2)}\n"
                     f"Trend: {trend}\n"
                     f"Volatility: {volatility}%\n"
@@ -201,9 +204,9 @@ with tab2:
                 st.dataframe(result)
                 auto_visualize(result)
 
-             elif intent == "forecast":
-                 fig = plot_forecast(history, forecast)
-                 st.pyplot(fig)         
+            elif intent == "forecast":
+                fig = plot_forecast(history, forecast)
+                st.pyplot(fig)     
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
