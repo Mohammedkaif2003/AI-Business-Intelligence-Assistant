@@ -52,17 +52,27 @@ def total_sales(year):
 # -----------------------------
 # REVENUE BY REGION
 # -----------------------------
-def revenue_by_region(year):
+def revenue_by_region(year, region=None):
     if year is None:
         return None
 
-    query = f"""
-    SELECT Region, SUM(Revenue) as Total_Revenue
-    FROM sales
-    WHERE Year = {year}
-    GROUP BY Region
-    """
-    return run_query(query)
+    if region:
+        query = """
+        SELECT Region, SUM(Revenue) as Total_Revenue
+        FROM sales
+        WHERE Year = :year AND Region = :region
+        GROUP BY Region
+        """
+        return run_query(query, {"year": year, "region": region})
+
+    else:
+        query = """
+        SELECT Region, SUM(Revenue) as Total_Revenue
+        FROM sales
+        WHERE Year = :year
+        GROUP BY Region
+        """
+        return run_query(query, {"year": year})
 
 
 # -----------------------------
