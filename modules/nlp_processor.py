@@ -28,31 +28,23 @@ except Exception:
 def detect_intent(query):
     query = query.lower()
 
-    # If ML model exists, use it
-    if model and vectorizer:
-        vectorized_query = vectorizer.transform([query])
-        prediction = model.predict(vectorized_query)
-        return prediction[0]
-
-    # Otherwise fallback to rule-based
     if "forecast" in query or "predict" in query:
         return "forecast"
 
     elif "top" in query or "rank" in query:
         return "ranking"
 
-    elif "growth" in query or "increase" in query:
-        return "growth"
-
-    elif "compare" in query:
+    elif "compare" in query or "previous year" in query or "last year" in query:
         return "comparison"
+
+    elif "region" in query:
+        return "growth"
 
     elif "sales" in query or "revenue" in query:
         return "sales"
 
     else:
         return "unknown"
-
 
 # -------------------------
 # Entity Extraction
