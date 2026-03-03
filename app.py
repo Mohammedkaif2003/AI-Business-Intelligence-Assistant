@@ -12,6 +12,7 @@ st.markdown("""
 <style>
 .big-title { font-size:28px !important; font-weight:600; }
 .metric-card { background-color:#f0f2f6; padding:15px; border-radius:10px; }
+.stMetric { background-color:#111827; padding:15px; border-radius:12px; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -70,7 +71,6 @@ with tab1:
     total_rev = kpi_data["total_revenue"].iloc[0]
     total_units = kpi_data["total_units"].iloc[0]
 
-    # -------- YoY Growth --------
     growth_query = """
     SELECT 
         SUM(CASE WHEN Year = :current THEN Revenue END) as current_year,
@@ -142,58 +142,60 @@ with tab2:
         intent = detect_intent(query)
         entities = extract_entities(query)
 
-        # Save memory
         if entities:
             st.session_state["last_entities"].update(entities)
 
-        # Use memory fallback
         year = entities.get("year") or st.session_state["last_entities"].get("year") or selected_year
         region = entities.get("region") or st.session_state["last_entities"].get("region")
 
         result = None
-        predicted_value = None
         response_text = ""
 
         try:
 
             if intent == "ranking":
                 result = top_products(year)
-                response_text = f"Here are the top products for {year}."
+                response_text = f"Top products in {year}:"
 
             elif intent == "sales":
                 result = total_sales(year)
                 total_value = result["Total_Sales"].iloc[0]
-                response_text = f"Total sales in {year} is {total_value:,}."
+                response_text = f"Total sales in {year}: {total_value:,}"
 
             elif intent == "growth":
                 result = revenue_by_region(year, region)
-                response_text = f"Revenue breakdown by region for {year}."
+                response_text = f"Revenue breakdown by region in {year}:"
 
             elif intent == "comparison":
                 current = total_sales(year)
                 previous = total_sales(year - 1)
 
-                if previous is not None and not previous.empty:
-                    curr_val = current["Total_Sales"].iloc[0]
-                    prev_val = previous["Total_Sales"].iloc[0]
-                    growth = ((curr_val - prev_val) / prev_val) * 100
+                curr_val = current["Total_Sales"].iloc[0]
+                prev_val = previous["Total_Sales"].iloc[0]
 
-                    response_text = (
-                        f"{year} Revenue: {curr_val:,}\n"
-                        f"{year-1} Revenue: {prev_val:,}\n\n"
-                        f"YoY Growth: {round(growth,2)}%"
-                    )
-
-            elif intent == "forecast":
-                history, forecast, risk_level, volatility, trend = forecast_revenue()
-                predicted_value = forecast.iloc[0]
+                growth = ((curr_val - prev_val) / prev_val) * 100
 
                 response_text = (
-                    f"Predicted revenue next month: {round(predicted_value,2)}\n\n"
+                    f"{year}: {curr_val:,}\n"
+                    f"{year-1}: {prev_val:,}\n\n"
+                    f"YoY Growth: {round(growth,2)}%"
+                )
+
+            elif intent == "forecast":
+
+                history, forecast, conf_int, risk_level, volatility, trend = forecast_revenue()
+
+                latest_prediction = forecast.iloc[-1]
+
+                response_text = (
+                    f"📊 6-Month Forecast\n\n"
+                    f"Latest Prediction: {round(latest_prediction,2)}\n"
                     f"Trend: {trend}\n"
                     f"Volatility: {volatility}%\n"
                     f"Risk Level: {risk_level}"
                 )
+
+                st.pyplot(plot_forecast(history, forecast, conf_int))
 
             else:
                 response_text = "Sorry, I didn't understand that question."
@@ -218,9 +220,6 @@ with tab2:
                                    f"Revenue by Region in {year}"))
                 st.success(generate_executive_insight(result))
 
-            elif intent == "forecast" and predicted_value is not None:
-                st.pyplot(plot_forecast(history, forecast))
-
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
@@ -229,8 +228,8 @@ with tab3:
 
     if st.button("📥 Generate Executive PDF Report"):
         file_path = generate_pdf(
-            query="Dashboard Summary",
-            summary_text="Executive BI Report",
+            query="Executive BI Summary",
+            summary_text="AI Generated Executive Business Report",
             dataframe=None,
             forecast_value=None
         )
