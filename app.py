@@ -1,3 +1,4 @@
+import streamlit as st
 st.markdown("""
 <style>
 .big-title {
@@ -11,7 +12,6 @@ st.markdown("""
 }
 </style>
 """, unsafe_allow_html=True)
-import streamlit as st
 from modules.analytics_engine import (
     top_products,
     total_sales,
