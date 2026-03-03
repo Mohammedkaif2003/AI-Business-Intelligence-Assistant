@@ -7,21 +7,6 @@ if "last_entities" not in st.session_state:
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
-# ---------------- STYLING ----------------
-st.markdown("""
-<style>
-.stMetric {
-    background-color:#1f2937;
-    padding:15px;
-    border-radius:12px;
-    color:white !important;
-}
-.stMetric label {
-    color:white !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
 # ---------------- IMPORTS ----------------
 from modules.analytics_engine import (
     top_products,
