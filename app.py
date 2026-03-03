@@ -217,18 +217,23 @@ with tab2:
 with tab3:
     st.markdown("## 📄 Executive Reports")
 
-    if st.button("📥 Generate Executive PDF Report"):
-        file_path = generate_pdf(
-            query="Executive BI Summary",
-            summary_text="AI Generated Executive Business Report",
-            dataframe=None,
-            forecast_value=None
-        )
+    if "last_query" in st.session_state:
 
-        with open(file_path, "rb") as file:
-            st.download_button(
-                label="Click to Download",
-                data=file,
-                file_name="AI_Executive_Report.pdf",
-                mime="application/pdf"
+        if st.button("📥 Generate Executive PDF Report"):
+
+            file_path = generate_pdf(
+                query=st.session_state["last_query"],
+                summary_text=generate_summary(st.session_state["last_query"]),
+                dataframe=st.session_state.get("last_result"),
+                forecast_value=None
             )
+
+            with open(file_path, "rb") as file:
+                st.download_button(
+                    label="Click to Download",
+                    data=file,
+                    file_name="AI_Executive_Report.pdf",
+                    mime="application/pdf"
+                )
+    else:
+        st.info("Run a query first to generate report.")
