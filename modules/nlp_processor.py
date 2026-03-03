@@ -1,28 +1,21 @@
+import os
 import joblib
+import re
 
-model = joblib.load("intent_model.pkl")
-vectorizer = joblib.load("vectorizer.pkl")
+# Get project root directory
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-def detect_intent(query):
-    query = query.lower()
+model_path = os.path.join(BASE_DIR, "intent_model.pkl")
+vectorizer_path = os.path.join(BASE_DIR, "vectorizer.pkl")
 
-    if "forecast" in query or "predict" in query:
-        return "forecast"
+model = None
+vectorizer = None
 
-    elif "top" in query or "rank" in query:
-        return "ranking"
-
-    elif "growth" in query or "increase" in query:
-        return "growth"
-
-    elif "compare" in query:
-        return "comparison"
-
-    elif "sales" in query or "revenue" in query:
-        return "sales"
-
-    else:
-        return "unknown"
+try:
+    model = joblib.load(model_path)
+    vectorizer = joblib.load(vectorizer_path)
+except Exception as e:
+    print("Model files not found. Using rule-based detection.")
 
 # keyword-based intent checks are now handled inside detect_intent()
 import re
