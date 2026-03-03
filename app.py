@@ -198,18 +198,21 @@ with tab2:
         with st.chat_message("assistant"):
             st.write(response_text)
 
-            if intent == "ranking" and result is not None:
-                st.dataframe(result)
-                st.pyplot(plot_bar(result, "Product", "Total_Revenue",
-                                   f"Top Products in {year}"))
-                st.pyplot(plot_pie(result, "Product", "Contribution_%"))
-                st.success(generate_executive_insight(result))
+            if intent == "ranking" and result is not None and not result.empty:
 
-            elif intent == "growth" and result is not None:
-                st.dataframe(result)
-                st.pyplot(plot_bar(result, "Region", "Total_Revenue",
-                                   f"Revenue by Region in {year}"))
-                st.success(generate_executive_insight(result))
+    st.dataframe(result)
+
+    if "Product" in result.columns and "Total_Revenue" in result.columns:
+        fig = plot_bar(result, "Product", "Total_Revenue",
+                       f"Top Products in {year}")
+        st.pyplot(fig)
+
+        if "Contribution_%" in result.columns:
+            st.pyplot(plot_pie(result, "Product", "Contribution_%"))
+
+        st.success(generate_executive_insight(result))
+    else:
+        st.info("Chart not available for this result structure.")
 
 # =====================================================
 # ================= REPORTS ===========================
