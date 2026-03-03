@@ -9,13 +9,23 @@ def auto_visualize(df):
         st.info("No data available.")
         return
 
-    # If single numeric value
+    # ---- SINGLE VALUE CASE ----
     if df.shape == (1, 1):
         value = df.iloc[0, 0]
-        st.metric("Result", f"{value:,}")
+
+        # Safe handling
+        if pd.isna(value) or value is None:
+            st.warning("No data available for this query.")
+            return
+
+        if isinstance(value, (int, float)):
+            st.metric("Result", f"{value:,.2f}")
+        else:
+            st.metric("Result", str(value))
+
         return
 
-    # If at least 2 columns and first is categorical + second numeric
+    # ---- CATEGORY + VALUE CASE ----
     if df.shape[1] >= 2:
 
         col1 = df.columns[0]
@@ -27,5 +37,5 @@ def auto_visualize(df):
             st.pyplot(fig)
             return
 
-    # Fallback
+    # ---- FALLBACK ----
     st.dataframe(df)
