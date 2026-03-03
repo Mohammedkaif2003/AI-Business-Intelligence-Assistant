@@ -175,7 +175,7 @@ with tab2:
 
             elif intent == "forecast":
 
-                history, forecast, risk_level, volatility, trend = forecast_revenue()nue()
+                history, forecast, risk_level, volatility, trend = forecast_revenue()
 
                 latest_prediction = forecast.iloc[-1]
 
