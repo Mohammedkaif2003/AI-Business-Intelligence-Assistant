@@ -21,6 +21,7 @@ from modules.report_generator import generate_pdf
 from modules.database import run_query
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
 from modules.auth import login
+from modules.auto_visualizer import auto_visualize
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -196,35 +197,12 @@ with tab2:
         with st.chat_message("assistant"):
             st.write(response_text)
 
-            # -------- RANKING --------
-            if intent == "ranking" and result is not None and not result.empty:
-
+            if result is not None:
                 st.dataframe(result)
+                auto_visualize(result)
 
-                if "Product" in result.columns and "Total_Revenue" in result.columns:
-                    st.pyplot(plot_bar(result, "Product", "Total_Revenue",
-                                       f"Top Products in {year}"))
-
-                    if "Contribution_%" in result.columns:
-                        st.pyplot(plot_pie(result, "Product", "Contribution_%"))
-
-                    st.success(generate_executive_insight(result))
-
-            # -------- GROWTH --------
-            elif intent == "growth" and result is not None and not result.empty:
-
-                st.dataframe(result)
-
-                if "Region" in result.columns and "Total_Revenue" in result.columns:
-                    st.pyplot(plot_bar(result, "Region", "Total_Revenue",
-                                       f"Revenue by Region in {year}"))
-
-                    st.success(generate_executive_insight(result))
-
-            # -------- FORECAST --------
             elif intent == "forecast":
-                st.pyplot(plot_forecast(history, forecast, conf_int))
-
+                st.pyplot(plot_forecast(history, forecast, conf_int))          
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
