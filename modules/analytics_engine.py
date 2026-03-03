@@ -78,7 +78,7 @@ def revenue_by_region(year, region=None):
 # -----------------------------
 # REVENUE FORECAST (ARIMA)
 # -----------------------------
-def forecast_revenue():
+def forecast_revenue(steps=6):
 
     query = "SELECT Date, Revenue FROM sales"
     df = run_query(query)
@@ -93,12 +93,22 @@ def forecast_revenue():
     model = ARIMA(monthly_data, order=(1, 1, 1))
     model_fit = model.fit()
 
-    forecast = model_fit.forecast(steps=1)
+    forecast_object = model_fit.get_forecast(steps=steps)
 
-    # Calculate volatility
+    forecast_values = forecast_object.predicted_mean
+    conf_int = forecast_object.conf_int()
+
+    # Create proper forecast index
+    forecast_values.index = pd.date_range(
+        start=monthly_data.index[-1] + pd.DateOffset(months=1),
+        periods=steps,
+        freq="M"
+    )
+
+    conf_int.index = forecast_values.index
+
     volatility = monthly_data.pct_change().std() * 100
 
-    # Risk classification
     if volatility < 5:
         risk_level = "Low"
     elif volatility < 15:
@@ -106,13 +116,12 @@ def forecast_revenue():
     else:
         risk_level = "High"
 
-    # Trend direction
-    if forecast.iloc[0] > monthly_data.iloc[-1]:
+    if forecast_values.iloc[-1] > monthly_data.iloc[-1]:
         trend = "Upward"
     else:
         trend = "Declining"
 
-    return monthly_data, forecast, risk_level, round(volatility,2), trend
+    return monthly_data, forecast_values, conf_int, risk_level, round(volatility, 2), trend
 # -----------------------------
 # GENERATE SUMMARY (FOR PDF)
 # -----------------------------
