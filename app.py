@@ -203,17 +203,26 @@ with tab2:
     st.dataframe(result)
 
     if "Product" in result.columns and "Total_Revenue" in result.columns:
-        fig = plot_bar(result, "Product", "Total_Revenue",
-                       f"Top Products in {year}")
+        fig = plot_bar(
+            result,
+            "Product",
+            "Total_Revenue",
+            f"Top Products in {year}"
+        )
         st.pyplot(fig)
 
         if "Contribution_%" in result.columns:
-            st.pyplot(plot_pie(result, "Product", "Contribution_%"))
+            pie_fig = plot_pie(
+                result,
+                "Product",
+                "Contribution_%"
+            )
+            st.pyplot(pie_fig)
 
         st.success(generate_executive_insight(result))
+
     else:
         st.info("Chart not available for this result structure.")
-
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
