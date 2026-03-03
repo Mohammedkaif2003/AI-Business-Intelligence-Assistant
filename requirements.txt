@@ -5,3 +5,4 @@ statsmodels
 matplotlib
 joblib
 scikit-learn
+reportlab
