@@ -20,7 +20,7 @@ from modules.analytics_engine import (
     generate_summary
 )
 from modules.visualization import plot_bar, plot_forecast, plot_pie
-from modules.nlp_processor import detect_intent, extract_year
+from modules.nlp_processor import detect_intent, extract_entities
 from modules.report_generator import generate_pdf
 from modules.database import run_query
 from modules.insight_engine import generate_executive_insight
@@ -131,8 +131,11 @@ query = st.chat_input("Ask your business question...")
 if query:
 
     intent = detect_intent(query)
-    year = extract_year(query)
+    entities = extract_entities(query)
 
+    year = entities.get("year", selected_year)
+    region = entities.get("region")
+    product = entities.get("product")
     if year is None:
         year = selected_year
 
@@ -151,7 +154,7 @@ if query:
         response_text = f"Total sales in {year} is {total_value:,}."
 
     elif intent == "region_sales":
-        result = revenue_by_region(year)
+        result = revenue_by_region(year, region)
         response_text = f"Here is revenue breakdown by region for {year}."
 
     elif intent == "forecast":
@@ -167,6 +170,8 @@ if query:
     else:
         response_text = "Sorry, I didn't understand that question."
 
+    with st.chat_message("user"):
+        st.write(query)
     st.session_state.chat_history.append(("user", query))
     st.session_state.chat_history.append(("assistant", response_text))
 
