@@ -22,25 +22,26 @@ def auto_visualize(df):
         st.metric("Result", f"{value:,.2f}")
         return
 
-# --------------------------
-# TIME SERIES (LINE CHART)
-# --------------------------
-if "Month" in df.columns:
+    # --------------------------
+    # TIME SERIES (LINE CHART)
+    # --------------------------
+    if "Month" in df.columns:
 
-    df = df.sort_values("Month")
-    st.line_chart(df.set_index("Month")["Total_Revenue"])
-    return
+        df = df.sort_values("Month")
+        st.line_chart(df.set_index("Month")["Total_Revenue"])
+        return
 
-if "Date" in df.columns:
+    if "Date" in df.columns:
 
-    df = df.sort_values("Date")
-    st.line_chart(df.set_index("Date")["Total_Revenue"])
-    return
+        df = df.sort_values("Date")
+        st.line_chart(df.set_index("Date")["Total_Revenue"])
+        return
 
     # --------------------------
-    # PIE CHART CASE
+    # PIE CHART
     # --------------------------
     if "Region" in df.columns:
+
         col1 = df.columns[0]
         col2 = df.columns[1]
 
@@ -49,7 +50,7 @@ if "Date" in df.columns:
         return
 
     # --------------------------
-    # DEFAULT BAR CHART
+    # BAR CHART
     # --------------------------
     if df.shape[1] >= 2:
 
