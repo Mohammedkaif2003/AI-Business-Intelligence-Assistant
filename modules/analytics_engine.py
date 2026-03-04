@@ -121,7 +121,8 @@ def forecast_revenue(steps=6):
     else:
         trend = "Declining"
 
-    return monthly_data, forecast_values, conf_int, risk_level, round(volatility, 2), trend
+    return history, forecast_values, conf_int, risk_level, round(volatility, 2), trend = forecast_revenue()
+    fig = plot_forecast(history, forecast, conf_int)
 # -----------------------------
 # GENERATE SUMMARY (FOR PDF)
 # -----------------------------
