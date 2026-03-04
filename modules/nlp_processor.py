@@ -42,7 +42,8 @@ def detect_intent(query):
 
     elif "sales" in query or "revenue" in query:
         return "sales"
-
+    elif "month" in query:
+        return "monthly_sales"
     else:
         return "unknown"
 
