@@ -182,12 +182,18 @@ with tab2:
 
         with st.chat_message("assistant"):
             st.write(response_text)
+        from suggest_followups import suggest_followups
+        suggestions = suggest_followups(intent)
+        if suggestions:
+            st.markdown("💡 **Suggested follow-up questions:**")
+            for s in suggestions:
+                st.write(f"- {s}")
 
-            if result is not None:
-                st.dataframe(result)
-                auto_visualize(result)
-                insight = generate_executive_insight(result)
-                st.info(insight)
+        if result is not None:
+            st.dataframe(result)
+            auto_visualize(result)
+            insight = generate_executive_insight(result)
+            st.info(insight)
 
 # =====================================================
 # ================= REPORTS ===========================

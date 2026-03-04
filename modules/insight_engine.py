@@ -85,3 +85,38 @@ def generate_executive_paragraph(total_rev, growth_percent, top_region):
     paragraph += " Overall performance indicates stable business operations with strategic monitoring required for sustained growth."
 
     return paragraph
+def suggest_followups(intent):
+
+    suggestions = {
+        "ranking": [
+            "Compare with last year",
+            "Show revenue by region",
+            "Forecast next month revenue"
+        ],
+
+        "sales": [
+            "Show revenue by region",
+            "Show monthly revenue trend",
+            "Forecast revenue"
+        ],
+
+        "growth": [
+            "Which region performs best?",
+            "Compare with last year",
+            "Show top products"
+        ],
+
+        "forecast": [
+            "Show revenue trend",
+            "Compare with last year",
+            "Show top products"
+        ],
+
+        "monthly_sales": [
+            "Compare with last year",
+            "Show revenue by region",
+            "Show top products"
+        ]
+    }
+
+    return suggestions.get(intent, [])
