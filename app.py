@@ -120,9 +120,6 @@ with tab1:
 # =====================================================
 # ================= AI CHAT ===========================
 # =====================================================
-# =====================================================
-# ================= AI CHAT ===========================
-# =====================================================
 with tab2:
 
     st.markdown("## 💬 Ask Business Question")
@@ -191,7 +188,10 @@ with tab2:
                 )
             elif intent == "forecast":
                 fig = plot_forecast(history, forecast, conf_int)
-                st.pyplot(fig)  
+                st.pyplot(fig)
+            elif intent == "monthly_sales":
+                result = revenue_by_month(year)
+                response_text = f"Monthly revenue in {year}:"
             else:
                 response_text = "Sorry, I didn't understand that question."
 
