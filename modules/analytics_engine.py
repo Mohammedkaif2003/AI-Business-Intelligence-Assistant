@@ -77,15 +77,21 @@ def revenue_by_region(year, region=None):
 def revenue_by_month(year):
 
     query = """
-    SELECT strftime('%m', Date) as Month,
-           SUM(Revenue) as Total_Revenue
+    SELECT 
+        strftime('%m', Date) as Month,
+        SUM(Revenue) as Total_Revenue
     FROM sales
     WHERE Year = :year
     GROUP BY Month
     ORDER BY Month
     """
 
-    return run_query(query, {"year": year})
+    df = run_query(query, {"year": year})
+
+    # Convert Month from string to integer
+    df["Month"] = df["Month"].astype(int)
+
+    return df
 # -----------------------------
 # REVENUE FORECAST (ARIMA)
 # -----------------------------
