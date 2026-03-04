@@ -13,7 +13,8 @@ from modules.analytics_engine import (
     total_sales,
     revenue_by_region,
     forecast_revenue,
-    generate_summary
+    generate_summary,
+    revenue_by_month
 )
 from modules.visualization import plot_bar, plot_forecast, plot_pie
 from modules.nlp_processor import detect_intent, extract_entities
@@ -143,9 +144,8 @@ with tab2:
         result = None
         response_text = ""
 
-        try:
-
-            if intent == "ranking":
+       try:
+           if intent == "ranking":
                 result = top_products(year)
                 response_text = f"Top products in {year}:"
 
@@ -186,25 +186,20 @@ with tab2:
                     f"Volatility: {volatility}%\n"
                     f"Risk Level: {risk_level}"
                 )
-            elif intent == "forecast":
+
                 fig = plot_forecast(history, forecast, conf_int)
                 st.pyplot(fig)
+
             elif intent == "monthly_sales":
                 result = revenue_by_month(year)
                 response_text = f"Monthly revenue in {year}:"
+
             else:
                 response_text = "Sorry, I didn't understand that question."
 
-        except Exception:
+        except Exception as e:
             st.error(e)
             response_text = "Error occurred."
-
-        with st.chat_message("assistant"):
-            st.write(response_text)
-
-            if result is not None:
-                st.dataframe(result)
-                auto_visualize(result)  
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
