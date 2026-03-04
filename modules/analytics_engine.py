@@ -41,12 +41,12 @@ def total_sales(year):
     if year is None:
         return None
 
-    query = f"""
+    query = """
     SELECT SUM(Revenue) as Total_Sales
     FROM sales
-    WHERE Year = {year}
+    WHERE Year = :year
     """
-    return run_query(query)
+    return run_query(query, {"year": year})
 
 
 # -----------------------------
