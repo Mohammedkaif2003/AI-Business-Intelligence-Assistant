@@ -37,16 +37,17 @@ def detect_intent(query):
     elif "compare" in query or "previous year" in query or "last year" in query:
         return "comparison"
 
+    elif "month" in query or "trend" in query:
+        return "monthly_sales"
+
     elif "region" in query:
         return "growth"
 
     elif "sales" in query or "revenue" in query:
         return "sales"
-    elif "month" in query:
-        return "monthly_sales"
+
     else:
         return "unknown"
-
 # -------------------------
 # Entity Extraction
 # -------------------------
