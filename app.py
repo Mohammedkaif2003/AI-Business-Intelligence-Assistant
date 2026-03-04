@@ -143,8 +143,7 @@ with tab2:
 
         result = None
         response_text = ""
-
-       try:
+        try:
            if intent == "ranking":
                 result = top_products(year)
                 response_text = f"Top products in {year}:"
