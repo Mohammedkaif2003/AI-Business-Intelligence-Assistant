@@ -16,13 +16,14 @@ from modules.analytics_engine import (
     generate_summary,
     revenue_by_month
 )
+
 from modules.visualization import plot_bar, plot_forecast, plot_pie
 from modules.nlp_processor import detect_intent, extract_entities
 from modules.report_generator import generate_pdf
 from modules.database import run_query
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
-#from modules.auth import login
 from modules.auto_visualizer import auto_visualize
+
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -31,12 +32,11 @@ st.set_page_config(
     layout="wide"
 )
 
-#login()
-
 st.title("📊 AI Business Intelligence Assistant")
 st.markdown("### Conversational Business Analytics System")
 
 tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "💬 AI Chat", "📄 Reports"])
+
 
 # ---------------- SIDEBAR ----------------
 st.sidebar.header("⚙ Dashboard Controls")
@@ -44,6 +44,7 @@ st.sidebar.header("⚙ Dashboard Controls")
 years_df = run_query("SELECT DISTINCT Year FROM sales ORDER BY Year")
 available_years = years_df["Year"].tolist()
 selected_year = st.sidebar.selectbox("Select Year", available_years)
+
 
 # =====================================================
 # ================= DASHBOARD =========================
@@ -58,31 +59,11 @@ with tab1:
     FROM sales
     WHERE Year = :year
     """
+
     kpi_data = run_query(kpi_query, {"year": selected_year})
 
     total_rev = kpi_data["total_revenue"].iloc[0]
     total_units = kpi_data["total_units"].iloc[0]
-
-    growth_query = """
-    SELECT 
-        SUM(CASE WHEN Year = :current THEN Revenue END) as current_year,
-        SUM(CASE WHEN Year = :previous THEN Revenue END) as previous_year
-    FROM sales
-    WHERE Year IN (:current, :previous)
-    """
-
-    growth_data = run_query(
-        growth_query,
-        {"current": selected_year, "previous": selected_year - 1}
-    )
-
-    current_year_val = growth_data["current_year"].iloc[0]
-    previous_year_val = growth_data["previous_year"].iloc[0]
-
-    if previous_year_val and previous_year_val != 0:
-        growth_percent = ((current_year_val - previous_year_val) / previous_year_val) * 100
-    else:
-        growth_percent = None
 
     region_query = """
     SELECT Region, SUM(Revenue) as total_revenue
@@ -96,27 +77,20 @@ with tab1:
     region_data = run_query(region_query, {"year": selected_year})
     top_region = region_data["Region"].iloc[0] if not region_data.empty else "N/A"
 
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
 
     col1.metric("Total Revenue", f"{total_rev:,}")
     col2.metric("Units Sold", f"{total_units:,}")
     col3.metric("Top Region", top_region)
 
-    if growth_percent is not None:
-        col4.metric("YoY Growth %", f"{round(growth_percent,2)}%",
-                    delta=f"{round(growth_percent,2)}%")
-    else:
-        col4.metric("YoY Growth %", "N/A")
-
-    st.divider()
-
     paragraph = generate_executive_paragraph(
         total_rev,
-        growth_percent,
+        None,
         top_region
     )
 
     st.info(paragraph)
+
 
 # =====================================================
 # ================= AI CHAT ===========================
@@ -143,8 +117,10 @@ with tab2:
 
         result = None
         response_text = ""
+
         try:
-           if intent == "ranking":
+
+            if intent == "ranking":
                 result = top_products(year)
                 response_text = f"Top products in {year}:"
 
@@ -199,10 +175,20 @@ with tab2:
         except Exception as e:
             st.error(e)
             response_text = "Error occurred."
+
+        with st.chat_message("assistant"):
+            st.write(response_text)
+
+            if result is not None:
+                st.dataframe(result)
+                auto_visualize(result)
+
+
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
 with tab3:
+
     st.markdown("## 📄 Executive Reports")
 
     if st.button("📥 Generate Executive PDF Report"):
