@@ -1,5 +1,5 @@
 import streamlit as st
-
+import pandas as pd
 # ---------------- MEMORY ----------------
 if "last_entities" not in st.session_state:
     st.session_state["last_entities"] = {}
@@ -20,7 +20,6 @@ from modules.analytics_engine import (
 from modules.visualization import plot_bar, plot_forecast, plot_pie
 from modules.nlp_processor import detect_intent, extract_entities
 from modules.report_generator import generate_pdf
-from modules.database import run_query
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
 from modules.auto_visualizer import auto_visualize
 
@@ -51,6 +50,19 @@ if uploaded_file:
     df = pd.read_csv(uploaded_file)
 else:
     df = run_query("SELECT * FROM sales")
+uploaded_file = st.sidebar.file_uploader("Upload dataset", type=["csv"])
+
+if uploaded_file is not None:
+    df = pd.read_csv(uploaded_file)
+else:
+    st.warning("Please upload a dataset to continue.")
+    st.stop()
+columns = detect_columns(df)
+
+product_col = columns.get("Product")
+region_col = columns.get("Region")
+revenue_col = columns.get("Revenue")
+date_col = columns.get("Date")
 # =====================================================
 # ================= DASHBOARD =========================
 # =====================================================
