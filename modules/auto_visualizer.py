@@ -22,16 +22,20 @@ def auto_visualize(df):
         st.metric("Result", f"{value:,.2f}")
         return
 
-    # --------------------------
-    # TIME SERIES
-    # --------------------------
-    if "Date" in df.columns or "Month" in df.columns:
+# --------------------------
+# TIME SERIES (LINE CHART)
+# --------------------------
+if "Month" in df.columns:
 
-        x = df.columns[0]
-        y = df.columns[1]
+    df = df.sort_values("Month")
+    st.line_chart(df.set_index("Month")["Total_Revenue"])
+    return
 
-        st.line_chart(df.set_index(x)[y])
-        return
+if "Date" in df.columns:
+
+    df = df.sort_values("Date")
+    st.line_chart(df.set_index("Date")["Total_Revenue"])
+    return
 
     # --------------------------
     # PIE CHART CASE
