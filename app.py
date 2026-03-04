@@ -45,7 +45,12 @@ years_df = run_query("SELECT DISTINCT Year FROM sales ORDER BY Year")
 available_years = years_df["Year"].tolist()
 selected_year = st.sidebar.selectbox("Select Year", available_years)
 
+uploaded_file = st.sidebar.file_uploader("Upload dataset", type=["csv"])
 
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+else:
+    df = run_query("SELECT * FROM sales")
 # =====================================================
 # ================= DASHBOARD =========================
 # =====================================================
@@ -181,7 +186,8 @@ with tab2:
             if result is not None:
                 st.dataframe(result)
                 auto_visualize(result)
-
+                insight = generate_executive_insight(result)
+                st.info(insight)
 
 # =====================================================
 # ================= REPORTS ===========================
