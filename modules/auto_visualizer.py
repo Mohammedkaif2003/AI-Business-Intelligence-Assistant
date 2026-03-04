@@ -36,8 +36,7 @@ def auto_visualize(df):
     # --------------------------
     # PIE CHART CASE
     # --------------------------
-    if "Region" in df.columns or "Contribution_%" in df.columns:
-
+    if "Region" in df.columns:
         col1 = df.columns[0]
         col2 = df.columns[1]
 
