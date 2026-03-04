@@ -132,22 +132,21 @@ with tab2:
             elif intent == "growth":
                 result = revenue_by_region(year, region)
                 response_text = f"Revenue breakdown by region in {year}:"
-
             elif intent == "comparison":
                 current = total_sales(year)
                 previous = total_sales(year - 1)
-
                 curr_val = current["Total_Sales"].iloc[0]
                 prev_val = previous["Total_Sales"].iloc[0]
-
-                growth = ((curr_val - prev_val) / prev_val) * 100
-
-                response_text = (
-                    f"{year}: {curr_val:,}\n"
-                    f"{year-1}: {prev_val:,}\n\n"
-                    f"YoY Growth: {round(growth,2)}%"
-                )
-
+                
+                if prev_val is None or prev_val == 0:
+                    response_text = f"No previous year data available for comparison."
+                else:
+                    growth = ((curr_val - prev_val) / prev_val) * 100
+                    response_text = (
+                        f"{year}: {curr_val:,}\n"
+                        f"{year-1}: {prev_val:,}\n\n"
+                        f"YoY Growth: {round(growth,2)}%"
+                    )
             elif intent == "forecast":
 
                 history, forecast, conf_int, risk_level, volatility, trend = forecast_revenue()
