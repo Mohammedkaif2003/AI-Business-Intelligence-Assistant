@@ -20,7 +20,7 @@ from modules.nlp_processor import detect_intent, extract_entities
 from modules.report_generator import generate_pdf
 from modules.database import run_query
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
-from modules.auth import login
+#from modules.auth import login
 from modules.auto_visualizer import auto_visualize
 
 # ---------------- PAGE CONFIG ----------------
@@ -30,7 +30,7 @@ st.set_page_config(
     layout="wide"
 )
 
-login()
+#login()
 
 st.title("📊 AI Business Intelligence Assistant")
 st.markdown("### Conversational Business Analytics System")
