@@ -178,7 +178,7 @@ with tab2:
 
             elif intent == "forecast":
 
-                history, forecast, risk_level, volatility, trend = forecast_revenue()
+                history, forecast, conf_int, risk_level, volatility, trend = forecast_revenue()
 
                 latest_prediction = forecast.iloc[-1]
 
@@ -189,12 +189,14 @@ with tab2:
                     f"Volatility: {volatility}%\n"
                     f"Risk Level: {risk_level}"
                 )
-
+            elif intent == "forecast":
+                fig = plot_forecast(history, forecast, conf_int)
+                st.pyplot(fig)  
             else:
                 response_text = "Sorry, I didn't understand that question."
 
         except Exception:
-            st.error("Unable to process this query.")
+            st.error(e)
             response_text = "Error occurred."
 
         with st.chat_message("assistant"):
@@ -202,11 +204,7 @@ with tab2:
 
             if result is not None:
                 st.dataframe(result)
-                auto_visualize(result)
-
-            elif intent == "forecast":
-                fig = plot_forecast(history, forecast)
-                st.pyplot(fig)     
+                auto_visualize(result)  
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
