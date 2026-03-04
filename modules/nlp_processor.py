@@ -31,7 +31,7 @@ def detect_intent(query):
     if "forecast" in query or "predict" in query:
         return "forecast"
 
-    elif "top" in query or "rank" in query:
+    elif any(word in query for word in ["top","rank","best","highest","most"]):
         return "ranking"
 
     elif "compare" in query or "previous year" in query or "last year" in query:
