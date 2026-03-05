@@ -30,13 +30,16 @@ def top_products(year):
     total_df = run_query(total_query, {"year": year})
     total_revenue = total_df["total"].iloc[0]
 
-    df["Contribution_%"] = round((df["Total_Revenue"] / total_revenue) * 100, 2)
+    df["Contribution_%"] = round(
+        (df["Total_Revenue"] / total_revenue) * 100, 2)
 
     return df
 
 # -----------------------------
 # TOTAL SALES
 # -----------------------------
+
+
 def total_sales(year):
     if year is None:
         return None
@@ -73,8 +76,10 @@ def revenue_by_region(year, region=None):
         GROUP BY Region
         """
         return run_query(query, {"year": year})
-    
+
+
 """AND LOWER(Region) = LOWER(:region)"""
+
 
 def revenue_by_month(year):
 
@@ -94,12 +99,15 @@ def revenue_by_month(year):
     df["Month"] = df["Month"].astype(int)
 
     return df
+
+
 # -----------------------------
 # REVENUE FORECAST (ARIMA)
 # -----------------------------
 if len(monthly_data) < 6:
     return None
-  
+
+
 def forecast_revenue(steps=6):
 
     query = "SELECT Date, Revenue FROM sales"
@@ -147,6 +155,8 @@ def forecast_revenue(steps=6):
 # -----------------------------
 # GENERATE SUMMARY (FOR PDF)
 # -----------------------------
+
+
 def generate_summary(query):
     return f"""
     Executive Summary:
@@ -159,6 +169,8 @@ def generate_summary(query):
 
     This system acts as a Conversational Business Intelligence Assistant.
     """
+
+
 def detect_revenue_anomalies():
 
     query = "SELECT Date, Revenue FROM sales"
