@@ -30,9 +30,12 @@ def top_products(year):
     total_df = run_query(total_query, {"year": year})
     total_revenue = total_df["total"].iloc[0]
 
-    df["Contribution_%"] = round(
-        (df["Total_Revenue"] / total_revenue) * 100, 2)
-
+    if total_revenue == 0:
+        df["Contribution_%"] = 0
+    else:
+        df["Contribution_%"] = round(
+            (df["Total_Revenue"] / total_revenue) * 100, 2
+        )
     return df
 
 # -----------------------------
@@ -78,9 +81,6 @@ def revenue_by_region(year, region=None):
         return run_query(query, {"year": year})
 
 
-"""AND LOWER(Region) = LOWER(:region)"""
-
-
 def revenue_by_month(year):
 
     query = """
@@ -109,14 +109,19 @@ def forecast_revenue(steps=6):
     query = "SELECT Date, Revenue FROM sales"
     df = run_query(query)
 
+    if df.empty:
+        return None
+
     df["Date"] = pd.to_datetime(df["Date"])
 
     monthly_data = (
         df.groupby(pd.Grouper(key="Date", freq="M"))["Revenue"]
         .sum()
     )
+
     if len(monthly_data) < 6:
         return None
+
     model = ARIMA(monthly_data, order=(1, 1, 1))
     model_fit = model.fit()
 
