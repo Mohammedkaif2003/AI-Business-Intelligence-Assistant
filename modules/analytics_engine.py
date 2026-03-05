@@ -104,10 +104,6 @@ def revenue_by_month(year):
 # -----------------------------
 # REVENUE FORECAST (ARIMA)
 # -----------------------------
-if len(monthly_data) < 6:
-    return None
-
-
 def forecast_revenue(steps=6):
 
     query = "SELECT Date, Revenue FROM sales"
@@ -119,7 +115,8 @@ def forecast_revenue(steps=6):
         df.groupby(pd.Grouper(key="Date", freq="M"))["Revenue"]
         .sum()
     )
-
+    if len(monthly_data) < 6:
+        return None
     model = ARIMA(monthly_data, order=(1, 1, 1))
     model_fit = model.fit()
 
