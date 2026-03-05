@@ -95,6 +95,9 @@ def revenue_by_month(year):
 # -----------------------------
 # REVENUE FORECAST (ARIMA)
 # -----------------------------
+if len(monthly_data) < 6:
+    return None
+LOWER(Region) = LOWER(:region)  
 def forecast_revenue(steps=6):
 
     query = "SELECT Date, Revenue FROM sales"

@@ -72,7 +72,7 @@ def extract_entities(query):
             entities["region"] = region.title()
 
     # Extract product
-    product_match = re.search(r'product\s+\w+', query.lower())
+    product_match = re.search(r'product\s+[\w\s]+', query.lower())
     if product_match:
         entities["product"] = product_match.group().title()
 

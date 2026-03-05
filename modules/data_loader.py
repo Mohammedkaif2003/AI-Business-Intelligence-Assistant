@@ -2,6 +2,8 @@ import pandas as pd
 
 def load_data():
     df = pd.read_csv("data/company_data.csv")
+    df.columns = df.columns.str.strip()
+    df.rename(columns=str.title, inplace=True)
     df["Date"] = pd.to_datetime(df["Date"])
     df["Year"] = df["Date"].dt.year
     df["Month"] = df["Date"].dt.month
@@ -50,25 +52,6 @@ def detect_columns(df):
             column_map["Date"] = col
 
     return column_map
-def run_query(query, params=None):
-    df = load_data()
-
-    # filter by year
-    if params and "year" in params:
-        df = df[df["Year"] == params["year"]]
-
-    query_lower = query.lower()
-
-    # KPI query
-    if "total_revenue" in query_lower or "total_units" in query_lower:
-
-        total_revenue = df["Revenue"].sum()
-        total_units = df["Units"].sum() if "Units" in df.columns else 0
-
-        return pd.DataFrame({
-            "total_revenue": [total_revenue],
-            "total_units": [total_units]
-        })
 
     # region revenue query
     if "group by region" in query_lower:

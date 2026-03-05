@@ -24,7 +24,7 @@ from modules.insight_engine import generate_executive_insight, generate_executiv
 from modules.auto_visualizer import auto_visualize
 from modules.data_loader import run_query, detect_columns
 from modules.insight_generator import generate_insight
-from modules.suggestions import suggest_followups
+
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Business Intelligence Assistant",
@@ -97,11 +97,10 @@ with tab1:
     region_data = run_query(region_query, {"year": selected_year})
     region_col = columns.get("Region")
 
-    top_region = (
-        region_data[region_col].iloc[0]
-        if region_col and not region_data.empty
-        else "N/A"
-)
+    if not region_data.empty and region_col in region_data.columns:
+        top_region = region_data[region_col].iloc[0]
+    else:
+        top_region = "N/A"
 
     col1, col2, col3 = st.columns(3)
 
@@ -203,27 +202,18 @@ with tab2:
 
         with st.chat_message("assistant"):
             st.write(response_text)
-        from suggest_followups import suggest_followups
+
         suggestions = suggest_followups(intent)
+
         if suggestions:
             st.markdown("💡 **Suggested follow-up questions:**")
             for s in suggestions:
                 st.write(f"- {s}")
-
         if result is not None:
             st.dataframe(result)
             auto_visualize(result)
             insight = generate_executive_insight(result)
             st.info(insight)
-insight = generate_insight(result_df)
-st.write("### Business Insights")
-st.write(insight)
-suggestions = suggest_followups(intent)
-
-st.write("### Suggested Questions")
-
-for s in suggestions:
-    st.write("- ", s)
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
@@ -247,11 +237,3 @@ with tab3:
                 file_name="AI_Executive_Report.pdf",
                 mime="application/pdf"
             )
-file = generate_pdf(insight)
-
-with open(file, "rb") as f:
-    st.download_button(
-        "Download Report",
-        f,
-        file_name="analysis_report.pdf"
-    )

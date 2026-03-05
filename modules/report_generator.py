@@ -54,9 +54,6 @@ def generate_pdf(query, summary_text, dataframe=None, forecast_value=None):
     doc.build(elements)
 
     return file_path
-from reportlab.pdfgen import canvas
-
-def generate_pdf(summary):
 
     c = canvas.Canvas("report.pdf")
 

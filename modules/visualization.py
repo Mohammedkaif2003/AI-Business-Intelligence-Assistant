@@ -9,9 +9,12 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------
 def plot_bar(df, x_col, y_col, title="Bar Chart"):
 
-    fig, ax = plt.subplots(figsize=(8, 5))
+    if x_col not in df.columns or y_col not in df.columns:
+        return None
 
+    fig, ax = plt.subplots(figsize=(8,5))
     ax.bar(df[x_col], df[y_col])
+
     ax.set_title(title)
     ax.set_xlabel(x_col)
     ax.set_ylabel(y_col)
@@ -21,7 +24,6 @@ def plot_bar(df, x_col, y_col, title="Bar Chart"):
     plt.tight_layout()
 
     return fig
-
 
 # --------------------------------------------------
 # FORECAST LINE CHART
