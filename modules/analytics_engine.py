@@ -121,16 +121,27 @@ data analytics and dynamic visualizations.
 # -----------------------------
 def detect_revenue_anomalies(df):
 
-    df["Date"] = pd.to_datetime(df["Date"])
+    if "Date" not in df.columns or "Revenue" not in df.columns:
+        return None
 
-    monthly = df.groupby(pd.Grouper(key="Date", freq="M"))["Revenue"].sum()
+    df_copy = df.copy()
+
+    df_copy["Date"] = pd.to_datetime(df_copy["Date"])
+
+    monthly = (
+        df_copy.groupby(pd.Grouper(key="Date", freq="M"))["Revenue"]
+        .sum()
+    )
+
+    if len(monthly) < 6:
+        return None
 
     mean = monthly.mean()
     std = monthly.std()
 
     anomalies = monthly[
-        (monthly > mean + 2*std) |
-        (monthly < mean - 2*std)
+        (monthly > mean + 2 * std) |
+        (monthly < mean - 2 * std)
     ]
 
     return monthly, anomalies

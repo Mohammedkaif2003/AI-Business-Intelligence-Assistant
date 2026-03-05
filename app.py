@@ -7,7 +7,8 @@ from modules.analytics_engine import (
     total_sales,
     revenue_by_region,
     forecast_revenue,
-    revenue_by_month
+    revenue_by_month,
+    detect_revenue_anomalies
 )
 
 from modules.visualization import plot_forecast
@@ -15,7 +16,7 @@ from modules.nlp_processor import detect_intent, extract_entities
 from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
-
+from modules.report_generator import generate_pdf
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Business Intelligence Assistant",
@@ -96,7 +97,24 @@ with tab1:
 
     st.dataframe(region_data)
     auto_visualize(region_data)
+st.subheader("⚠ Revenue Anomaly Detection")
 
+anomaly_data = detect_revenue_anomalies(df)
+
+if anomaly_data:
+
+    monthly, anomalies = anomaly_data
+
+    if not anomalies.empty:
+
+        for date, value in anomalies.items():
+
+            st.warning(
+                f"Anomaly detected: {date.strftime('%B %Y')} revenue = {value:,.0f}"
+            )
+
+    else:
+        st.success("No anomalies detected in revenue trends.")
 
 # =====================================================
 # ================= AI CHAT ===========================
