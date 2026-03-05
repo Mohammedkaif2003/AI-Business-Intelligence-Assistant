@@ -22,7 +22,7 @@ from modules.nlp_processor import detect_intent, extract_entities
 from modules.report_generator import generate_pdf
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
 from modules.auto_visualizer import auto_visualize
-
+from modules.data_loader import run_query
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
