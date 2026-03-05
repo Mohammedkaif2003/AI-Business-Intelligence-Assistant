@@ -52,17 +52,3 @@ def detect_columns(df):
             column_map["Date"] = col
 
     return column_map
-
-    # region revenue query
-    if "group by region" in query_lower:
-
-        region_data = (
-            df.groupby("Region")["Revenue"]
-            .sum()
-            .reset_index()
-            .sort_values(by="Revenue", ascending=False)
-        )
-
-        return region_data
-
-    return df
