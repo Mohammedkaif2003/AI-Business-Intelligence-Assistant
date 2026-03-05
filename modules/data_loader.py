@@ -57,19 +57,29 @@ def run_query(query, params=None):
     if params and "year" in params:
         df = df[df["Year"] == params["year"]]
 
-    # KPI calculation
-    if "total_revenue" in query.lower() or "total_units" in query.lower():
+    query_lower = query.lower()
+
+    # KPI query
+    if "total_revenue" in query_lower or "total_units" in query_lower:
 
         total_revenue = df["Revenue"].sum()
-
-        if "Units" in df.columns:
-            total_units = df["Units"].sum()
-        else:
-            total_units = 0
+        total_units = df["Units"].sum() if "Units" in df.columns else 0
 
         return pd.DataFrame({
             "total_revenue": [total_revenue],
             "total_units": [total_units]
         })
+
+    # region revenue query
+    if "group by region" in query_lower:
+
+        region_data = (
+            df.groupby("Region")["Revenue"]
+            .sum()
+            .reset_index()
+            .sort_values(by="Revenue", ascending=False)
+        )
+
+        return region_data
 
     return df
