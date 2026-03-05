@@ -94,7 +94,13 @@ with tab1:
     """
 
     region_data = run_query(region_query, {"year": selected_year})
-    top_region = region_data["Region"].iloc[0] if not region_data.empty else "N/A"
+    region_col = columns.get("Region")
+
+    top_region = (
+        region_data[region_col].iloc[0]
+        if region_col and not region_data.empty
+        else "N/A"
+)
 
     col1, col2, col3 = st.columns(3)
 
