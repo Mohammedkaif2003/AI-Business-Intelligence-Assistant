@@ -64,6 +64,12 @@ columns = detect_columns(df)
 
 product_col = columns.get("Product")
 region_col = columns.get("Region")
+
+top_region = (
+    region_data[region_col].iloc[0]
+    if region_col and not region_data.empty
+    else "N/A"
+)
 revenue_col = columns.get("Revenue")
 date_col = columns.get("Date")
 # =====================================================
@@ -98,7 +104,7 @@ with tab1:
     region_col = columns.get("Region")
 
     if not region_data.empty and region_col in region_data.columns:
-        top_region = region_data[region_col].iloc[0]
+        top_region = region_data["Region"].iloc[0]
     else:
         top_region = "N/A"
 
