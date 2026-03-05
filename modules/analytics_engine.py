@@ -73,6 +73,8 @@ def revenue_by_region(year, region=None):
         GROUP BY Region
         """
         return run_query(query, {"year": year})
+    
+"""AND LOWER(Region) = LOWER(:region)"""
 
 def revenue_by_month(year):
 
@@ -97,7 +99,7 @@ def revenue_by_month(year):
 # -----------------------------
 if len(monthly_data) < 6:
     return None
-LOWER(Region) = LOWER(:region)  
+  
 def forecast_revenue(steps=6):
 
     query = "SELECT Date, Revenue FROM sales"
