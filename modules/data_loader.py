@@ -53,13 +53,23 @@ def detect_columns(df):
 def run_query(query, params=None):
     df = load_data()
 
-    # filter by year if provided
+    # filter by year
     if params and "year" in params:
         df = df[df["Year"] == params["year"]]
 
-    # KPI query
-    if "total_revenue" in query.lower():
+    # KPI calculation
+    if "total_revenue" in query.lower() or "total_units" in query.lower():
+
         total_revenue = df["Revenue"].sum()
-        return pd.DataFrame({"total_revenue": [total_revenue]})
+
+        if "Units" in df.columns:
+            total_units = df["Units"].sum()
+        else:
+            total_units = 0
+
+        return pd.DataFrame({
+            "total_revenue": [total_revenue],
+            "total_units": [total_units]
+        })
 
     return df
