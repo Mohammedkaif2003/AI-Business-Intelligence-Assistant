@@ -14,8 +14,7 @@ from modules.visualization import plot_forecast
 from modules.nlp_processor import detect_intent, extract_entities
 from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
-from modules.report_generator import generate_pdf
-
+from modules.insight_engine import generate_business_insight
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -173,7 +172,8 @@ with tab2:
         if result is not None:
             st.dataframe(result)
             auto_visualize(result)
-
+            insight = generate_business_insight(result)
+            st.info(insight)
 
 # =====================================================
 # ================= REPORTS ===========================
