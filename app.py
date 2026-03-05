@@ -56,6 +56,9 @@ else:
     st.warning("Please upload a dataset to continue.")
     st.stop()
 
+from modules.data_loader import normalize_columns
+
+df = normalize_columns(df)
 columns = detect_columns(df)
 
 product_col = columns.get("Product")
