@@ -53,13 +53,13 @@ def detect_columns(df):
 def run_query(query, params=None):
     df = load_data()
 
-    # support: SELECT DISTINCT Year
-    if "SELECT DISTINCT Year" in query:
-        years = sorted(df["Year"].unique())
-        return pd.DataFrame({"Year": years})
-
-    # support filtering by year
+    # filter by year if provided
     if params and "year" in params:
         df = df[df["Year"] == params["year"]]
+
+    # KPI query
+    if "total_revenue" in query.lower():
+        total_revenue = df["Revenue"].sum()
+        return pd.DataFrame({"total_revenue": [total_revenue]})
 
     return df
