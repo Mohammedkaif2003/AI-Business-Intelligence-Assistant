@@ -9,10 +9,12 @@ import matplotlib.pyplot as plt
 # --------------------------------------------------
 def plot_bar(df, x_col, y_col, title="Bar Chart"):
 
-    if x_col not in df.columns or y_col not in df.columns:
-        return None
+    fig, ax = plt.subplots(figsize=(8, 5))
 
-    fig, ax = plt.subplots(figsize=(8,5))
+    if x_col not in df.columns or y_col not in df.columns:
+        ax.text(0.5, 0.5, "Invalid columns", ha="center")
+        return fig
+
     ax.bar(df[x_col], df[y_col])
 
     ax.set_title(title)
@@ -25,6 +27,7 @@ def plot_bar(df, x_col, y_col, title="Bar Chart"):
 
     return fig
 
+
 # --------------------------------------------------
 # FORECAST LINE CHART
 # --------------------------------------------------
@@ -32,13 +35,9 @@ def plot_forecast(monthly_data, forecast, conf_int=None):
 
     fig, ax = plt.subplots(figsize=(10, 5))
 
-    # Historical
     ax.plot(monthly_data.index, monthly_data.values, label="Historical")
-
-    # Forecast
     ax.plot(forecast.index, forecast.values, label="Forecast")
 
-    # Confidence Interval
     if conf_int is not None:
         ax.fill_between(
             forecast.index,
@@ -60,6 +59,16 @@ def plot_forecast(monthly_data, forecast, conf_int=None):
 def plot_pie(df, label_col, value_col):
 
     fig, ax = plt.subplots(figsize=(6, 6))
+
+    if label_col not in df.columns or value_col not in df.columns:
+        ax.text(0.5, 0.5, "Invalid columns", ha="center")
+        return fig
+
+    df = df[df[value_col] > 0]
+
+    if df.empty:
+        ax.text(0.5, 0.5, "No data to display", ha="center")
+        return fig
 
     ax.pie(
         df[value_col],

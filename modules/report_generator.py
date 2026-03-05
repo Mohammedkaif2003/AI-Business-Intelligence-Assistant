@@ -8,6 +8,7 @@ from reportlab.lib.units import inch
 def generate_pdf(query, summary_text, dataframe=None, forecast_value=None):
 
     file_path = "AI_Executive_Report.pdf"
+
     doc = SimpleDocTemplate(file_path)
     elements = []
 
@@ -27,7 +28,7 @@ def generate_pdf(query, summary_text, dataframe=None, forecast_value=None):
     elements.append(Paragraph(f"<b>Summary:</b> {summary_text}", normal_style))
     elements.append(Spacer(1, 0.3 * inch))
 
-    # Forecast value (if exists)
+    # Forecast value
     if forecast_value is not None:
         elements.append(
             Paragraph(
@@ -37,15 +38,17 @@ def generate_pdf(query, summary_text, dataframe=None, forecast_value=None):
         )
         elements.append(Spacer(1, 0.3 * inch))
 
-    # Data table (if exists)
-    if dataframe is not None:
+    # Data table
+    if dataframe is not None and not dataframe.empty:
+
         data = [dataframe.columns.tolist()] + dataframe.values.tolist()
 
         table = Table(data)
+
         table.setStyle(
             TableStyle([
                 ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black)
             ])
         )
 
@@ -54,12 +57,3 @@ def generate_pdf(query, summary_text, dataframe=None, forecast_value=None):
     doc.build(elements)
 
     return file_path
-
-    c = canvas.Canvas("report.pdf")
-
-    c.drawString(100, 750, "AI Business Intelligence Report")
-    c.drawString(100, 700, summary)
-
-    c.save()
-
-    return "report.pdf"

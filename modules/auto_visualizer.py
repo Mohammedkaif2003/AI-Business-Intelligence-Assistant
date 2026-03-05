@@ -13,6 +13,7 @@ def auto_visualize(df):
     # SINGLE VALUE
     # --------------------------
     if df.shape == (1, 1):
+
         value = df.iloc[0, 0]
 
         if pd.isna(value):
@@ -22,28 +23,42 @@ def auto_visualize(df):
         st.metric("Result", f"{value:,.2f}")
         return
 
+    # Detect numeric column automatically
+    numeric_cols = df.select_dtypes(include="number").columns
+
+    if len(numeric_cols) == 0:
+        st.dataframe(df)
+        return
+
+    value_col = numeric_cols[0]
+
     # --------------------------
-    # TIME SERIES (LINE CHART)
+    # TIME SERIES (MONTH)
     # --------------------------
     if "Month" in df.columns:
 
         df = df.sort_values("Month")
-        st.line_chart(df.set_index("Month")["Total_Revenue"])
+
+        st.line_chart(df.set_index("Month")[value_col])
         return
 
+    # --------------------------
+    # TIME SERIES (DATE)
+    # --------------------------
     if "Date" in df.columns:
 
         df = df.sort_values("Date")
-        st.line_chart(df.set_index("Date")["Total_Revenue"])
+
+        st.line_chart(df.set_index("Date")[value_col])
         return
 
     # --------------------------
-    # PIE CHART
+    # PIE CHART (Region/Product)
     # --------------------------
-    if "Region" in df.columns:
+    if "Region" in df.columns or "Product" in df.columns:
 
         col1 = df.columns[0]
-        col2 = df.columns[1]
+        col2 = value_col
 
         fig = plot_pie(df, col1, col2)
         st.pyplot(fig)
@@ -55,12 +70,11 @@ def auto_visualize(df):
     if df.shape[1] >= 2:
 
         col1 = df.columns[0]
-        col2 = df.columns[1]
+        col2 = value_col
 
-        if pd.api.types.is_numeric_dtype(df[col2]):
-            fig = plot_bar(df, col1, col2, f"{col2} by {col1}")
-            st.pyplot(fig)
-            return
+        fig = plot_bar(df, col1, col2, f"{col2} by {col1}")
+        st.pyplot(fig)
+        return
 
     # --------------------------
     # FALLBACK

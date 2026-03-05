@@ -1,8 +1,8 @@
 streamlit
 pandas
-sqlalchemy
-statsmodels
 matplotlib
+statsmodels
 joblib
 scikit-learn
 reportlab
+numpy

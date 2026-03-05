@@ -1,37 +1,17 @@
-import os
-import joblib
 import re
 
-# -------------------------
-# Load ML Model (Optional)
-# -------------------------
-
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-model_path = os.path.join(BASE_DIR, "intent_model.pkl")
-vectorizer_path = os.path.join(BASE_DIR, "vectorizer.pkl")
-
-model = None
-vectorizer = None
-
-try:
-    model = joblib.load(model_path)
-    vectorizer = joblib.load(vectorizer_path)
-except Exception:
-    print("Model files not found. Using rule-based detection.")
-
 
 # -------------------------
-# Intent Detection
+# INTENT DETECTION
 # -------------------------
-
 def detect_intent(query):
+
     query = query.lower()
 
     if "forecast" in query or "predict" in query:
         return "forecast"
 
-    elif any(word in query for word in ["top","rank","best","highest","most"]):
+    elif any(word in query for word in ["top", "rank", "best", "highest", "most"]):
         return "ranking"
 
     elif "compare" in query or "previous year" in query or "last year" in query:
@@ -48,47 +28,52 @@ def detect_intent(query):
 
     else:
         return "unknown"
-# -------------------------
-# Entity Extraction
-# -------------------------
 
+
+# -------------------------
+# ENTITY EXTRACTION
+# -------------------------
 def extract_entities(query):
+
     entities = {}
 
-    # Extract year (2020–2039 range)
-    year_match = re.search(r'\b(20[2-3][0-9])\b', query)
+    query_lower = query.lower()
+
+    # Extract year
+    year_match = re.search(r"\b(20[2-3][0-9])\b", query_lower)
     if year_match:
         entities["year"] = int(year_match.group())
 
     # Extract quarter
-    quarter_match = re.search(r'\b(Q[1-4])\b', query.upper())
+    quarter_match = re.search(r"\b(q[1-4])\b", query_lower)
     if quarter_match:
-        entities["quarter"] = quarter_match.group()
+        entities["quarter"] = quarter_match.group().upper()
 
     # Extract region
     regions = ["north", "south", "east", "west"]
+
     for region in regions:
-        if region in query.lower():
+        if region in query_lower:
             entities["region"] = region.title()
 
     # Extract product
-    product_match = re.search(r'product\s+[\w\s]+', query.lower())
+    product_match = re.search(r"product\s+([\w\s]+)", query_lower)
     if product_match:
-        entities["product"] = product_match.group().title()
+        entities["product"] = product_match.group(1).title()
 
     return entities
-def extract_region(query):
 
-    regions = ["north","south","east","west"]
 
-    for r in regions:
-        if r in query.lower():
-            return r
-
-    return None
+# -------------------------
+# OPTIONAL HELPERS
+# -------------------------
 def extract_product(query, df):
 
-    for product in df["product"].unique():
+    if "Product" not in df.columns:
+        return None
+
+    for product in df["Product"].unique():
+
         if product.lower() in query.lower():
             return product
 

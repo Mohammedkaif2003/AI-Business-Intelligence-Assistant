@@ -1,4 +1,3 @@
-from modules.database import run_query
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
 
@@ -6,111 +5,83 @@ from statsmodels.tsa.arima.model import ARIMA
 # -----------------------------
 # TOP 5 PRODUCTS
 # -----------------------------
-def top_products(year):
-    if year is None:
-        return None
+def top_products(df, year):
 
-    query = """
-    SELECT Product, SUM(Revenue) as Total_Revenue
-    FROM sales
-    WHERE Year = :year
-    GROUP BY Product
-    ORDER BY Total_Revenue DESC
-    LIMIT 5
-    """
+    df_year = df[df["Year"] == year]
 
-    df = run_query(query, {"year": year})
+    result = (
+        df_year.groupby("Product")["Revenue"]
+        .sum()
+        .reset_index()
+        .sort_values(by="Revenue", ascending=False)
+        .head(5)
+    )
 
-    total_query = """
-    SELECT SUM(Revenue) as total
-    FROM sales
-    WHERE Year = :year
-    """
+    total_revenue = result["Revenue"].sum()
 
-    total_df = run_query(total_query, {"year": year})
-    total_revenue = total_df["total"].iloc[0]
-
-    if total_revenue == 0:
-        df["Contribution_%"] = 0
-    else:
-        df["Contribution_%"] = round(
-            (df["Total_Revenue"] / total_revenue) * 100, 2
+    if total_revenue > 0:
+        result["Contribution_%"] = round(
+            (result["Revenue"] / total_revenue) * 100, 2
         )
-    return df
+    else:
+        result["Contribution_%"] = 0
+
+    return result
+
 
 # -----------------------------
 # TOTAL SALES
 # -----------------------------
+def total_sales(df, year):
 
+    df_year = df[df["Year"] == year]
 
-def total_sales(year):
-    if year is None:
-        return None
+    total = df_year["Revenue"].sum()
 
-    query = """
-    SELECT SUM(Revenue) as Total_Sales
-    FROM sales
-    WHERE Year = :year
-    """
-    return run_query(query, {"year": year})
+    return pd.DataFrame({"Total_Sales": [total]})
 
 
 # -----------------------------
 # REVENUE BY REGION
 # -----------------------------
-def revenue_by_region(year, region=None):
-    if year is None:
-        return None
+def revenue_by_region(df, year, region=None):
+
+    df_year = df[df["Year"] == year]
 
     if region:
-        query = """
-        SELECT Region, SUM(Revenue) as Total_Revenue
-        FROM sales
-        WHERE Year = :year AND Region = :region
-        GROUP BY Region
-        """
-        return run_query(query, {"year": year, "region": region})
+        df_year = df_year[df_year["Region"] == region]
 
-    else:
-        query = """
-        SELECT Region, SUM(Revenue) as Total_Revenue
-        FROM sales
-        WHERE Year = :year
-        GROUP BY Region
-        """
-        return run_query(query, {"year": year})
+    result = (
+        df_year.groupby("Region")["Revenue"]
+        .sum()
+        .reset_index()
+        .sort_values(by="Revenue", ascending=False)
+    )
 
-
-def revenue_by_month(year):
-
-    query = """
-    SELECT 
-        strftime('%m', Date) as Month,
-        SUM(Revenue) as Total_Revenue
-    FROM sales
-    WHERE Year = :year
-    GROUP BY Month
-    ORDER BY Month
-    """
-
-    df = run_query(query, {"year": year})
-
-    # Convert Month from string to integer
-    df["Month"] = df["Month"].astype(int)
-
-    return df
+    return result
 
 
 # -----------------------------
-# REVENUE FORECAST (ARIMA)
+# REVENUE BY MONTH
 # -----------------------------
-def forecast_revenue(steps=6):
+def revenue_by_month(df, year):
 
-    query = "SELECT Date, Revenue FROM sales"
-    df = run_query(query)
+    df_year = df[df["Year"] == year]
 
-    if df.empty:
-        return None
+    result = (
+        df_year.groupby("Month")["Revenue"]
+        .sum()
+        .reset_index()
+        .sort_values(by="Month")
+    )
+
+    return result
+
+
+# -----------------------------
+# FORECAST REVENUE (ARIMA)
+# -----------------------------
+def forecast_revenue(df, steps=6):
 
     df["Date"] = pd.to_datetime(df["Date"])
 
@@ -122,61 +93,33 @@ def forecast_revenue(steps=6):
     if len(monthly_data) < 6:
         return None
 
-    model = ARIMA(monthly_data, order=(1, 1, 1))
+    model = ARIMA(monthly_data, order=(1,1,1))
     model_fit = model.fit()
 
-    forecast_object = model_fit.get_forecast(steps=steps)
+    forecast = model_fit.forecast(steps=steps)
 
-    forecast_values = forecast_object.predicted_mean
-    conf_int = forecast_object.conf_int()
+    return monthly_data, forecast
 
-    # Create proper forecast index
-    forecast_values.index = pd.date_range(
-        start=monthly_data.index[-1] + pd.DateOffset(months=1),
-        periods=steps,
-        freq="M"
-    )
 
-    conf_int.index = forecast_values.index
-
-    volatility = monthly_data.pct_change().std() * 100
-
-    if volatility < 5:
-        risk_level = "Low"
-    elif volatility < 15:
-        risk_level = "Medium"
-    else:
-        risk_level = "High"
-
-    if forecast_values.iloc[-1] > monthly_data.iloc[-1]:
-        trend = "Upward"
-    else:
-        trend = "Declining"
-
-    return monthly_data, forecast_values, conf_int, risk_level, round(volatility, 2), trend
 # -----------------------------
-# GENERATE SUMMARY (FOR PDF)
+# SUMMARY FOR REPORT
 # -----------------------------
-
-
 def generate_summary(query):
+
     return f"""
-    Executive Summary:
+Executive Summary:
 
-    This report analyzes the business query: '{query}'.
+This report analyzes the business query: '{query}'.
 
-    The insights in this report are generated using AI-powered
-    data analytics, KPI computation, forecasting models,
-    and dynamic visualizations.
-
-    This system acts as a Conversational Business Intelligence Assistant.
-    """
+The insights in this report are generated using AI-powered
+data analytics and dynamic visualizations.
+"""
 
 
-def detect_revenue_anomalies():
-
-    query = "SELECT Date, Revenue FROM sales"
-    df = run_query(query)
+# -----------------------------
+# ANOMALY DETECTION
+# -----------------------------
+def detect_revenue_anomalies(df):
 
     df["Date"] = pd.to_datetime(df["Date"])
 
@@ -185,6 +128,9 @@ def detect_revenue_anomalies():
     mean = monthly.mean()
     std = monthly.std()
 
-    anomalies = monthly[(monthly > mean + 2*std) | (monthly < mean - 2*std)]
+    anomalies = monthly[
+        (monthly > mean + 2*std) |
+        (monthly < mean - 2*std)
+    ]
 
     return monthly, anomalies
