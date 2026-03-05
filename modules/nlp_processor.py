@@ -77,3 +77,19 @@ def extract_entities(query):
         entities["product"] = product_match.group().title()
 
     return entities
+def extract_region(query):
+
+    regions = ["north","south","east","west"]
+
+    for r in regions:
+        if r in query.lower():
+            return r
+
+    return None
+def extract_product(query, df):
+
+    for product in df["product"].unique():
+        if product.lower() in query.lower():
+            return product
+
+    return None

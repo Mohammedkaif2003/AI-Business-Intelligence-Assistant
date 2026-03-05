@@ -23,7 +23,8 @@ from modules.report_generator import generate_pdf
 from modules.insight_engine import generate_executive_insight, generate_executive_paragraph
 from modules.auto_visualizer import auto_visualize
 from modules.data_loader import run_query, detect_columns
-
+from modules.insight_generator import generate_insight
+from modules.suggestions import suggest_followups
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Business Intelligence Assistant",
@@ -214,7 +215,15 @@ with tab2:
             auto_visualize(result)
             insight = generate_executive_insight(result)
             st.info(insight)
+insight = generate_insight(result_df)
+st.write("### Business Insights")
+st.write(insight)
+suggestions = suggest_followups(intent)
 
+st.write("### Suggested Questions")
+
+for s in suggestions:
+    st.write("- ", s)
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
@@ -238,3 +247,11 @@ with tab3:
                 file_name="AI_Executive_Report.pdf",
                 mime="application/pdf"
             )
+file = generate_pdf(insight)
+
+with open(file, "rb") as f:
+    st.download_button(
+        "Download Report",
+        f,
+        file_name="analysis_report.pdf"
+    )
