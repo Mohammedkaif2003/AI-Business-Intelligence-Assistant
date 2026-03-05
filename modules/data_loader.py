@@ -50,12 +50,16 @@ def detect_columns(df):
             column_map["Date"] = col
 
     return column_map
-def run_query(query):
+def run_query(query, params=None):
     df = load_data()
 
-    # support: SELECT DISTINCT Year FROM sales ORDER BY Year
+    # support: SELECT DISTINCT Year
     if "SELECT DISTINCT Year" in query:
         years = sorted(df["Year"].unique())
         return pd.DataFrame({"Year": years})
+
+    # support filtering by year
+    if params and "year" in params:
+        df = df[df["Year"] == params["year"]]
 
     return df
