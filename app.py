@@ -17,9 +17,8 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-from modules.ai_data_analyst import generate_analysis_code, execute_generated_code
 from modules.ai_code_generator import generate_analysis_code
-from modules.code_executor import execute_code
+from modules.code_executor import execute_code, execute_generated_code
 # GROQ AI
 from modules.groq_ai import generate_ai_response, suggest_business_questions
 
@@ -269,6 +268,10 @@ with tab2:
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
+# =====================================================
+# ================= REPORTS ===========================
+# =====================================================
+
 with tab3:
 
     st.subheader("📄 Generate Executive Report")
@@ -276,16 +279,17 @@ with tab3:
     if st.button("Generate PDF Report"):
 
         file_path = generate_pdf(
-            query="Business Analytics Summary",
-            summary_text="AI Generated Business Intelligence Report",
-            dataframe=None,
+            query=query,
+            summary_text=insight,
+            dataframe=result,
             forecast_value=None
         )
 
         with open(file_path, "rb") as file:
+
             st.download_button(
                 "Download Report",
                 data=file,
-                file_name="BI_Report.pdf",
+                file_name="AI_Executive_Report.pdf",
                 mime="application/pdf"
             )
