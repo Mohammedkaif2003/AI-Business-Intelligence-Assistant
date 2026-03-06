@@ -33,5 +33,3 @@ def execute_ai_code(code, df):
     exec(code, {}, local_vars)
 
     return local_vars
-if "import os" in code or "import sys" in code:
-    raise ValueError("Unsafe code generated")
