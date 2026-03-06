@@ -1,82 +1,46 @@
 import streamlit as st
 import pandas as pd
-from modules.visualization import plot_bar, plot_pie
 
 
 def auto_visualize(df):
 
     if df is None or df.empty:
-        st.info("No data available.")
         return
 
-    # --------------------------
-    # SINGLE VALUE
-    # --------------------------
-    if df.shape == (1, 1):
+    numeric_cols = df.select_dtypes(include="number").columns.tolist()
+    cat_cols = df.select_dtypes(include="object").columns.tolist()
 
-        value = df.iloc[0, 0]
+    # ---------------- BAR CHART ----------------
+    if len(cat_cols) > 0 and len(numeric_cols) > 0:
 
-        if pd.isna(value):
-            st.warning("No data available.")
-            return
+        st.subheader("📊 Bar Chart")
 
-        st.metric("Result", f"{value:,.2f}")
-        return
+        try:
+            st.bar_chart(df.set_index(cat_cols[0])[numeric_cols[0]])
+        except:
+            st.bar_chart(df[numeric_cols])
 
-    # Detect numeric column automatically
-    numeric_cols = df.select_dtypes(include="number").columns
+    # ---------------- LINE CHART ----------------
+    if "Month" in df.columns and len(numeric_cols) > 0:
 
-    if len(numeric_cols) == 0:
-        st.dataframe(df)
-        return
+        st.subheader("📈 Line Chart")
 
-    value_col = numeric_cols[0]
+        try:
+            st.line_chart(df.set_index("Month")[numeric_cols[0]])
+        except:
+            st.line_chart(df[numeric_cols])
 
-    # --------------------------
-    # TIME SERIES (MONTH)
-    # --------------------------
-    if "Month" in df.columns:
+    # ---------------- PIE CHART ----------------
+    if len(cat_cols) > 0 and len(numeric_cols) > 0:
 
-        df = df.sort_values("Month")
+        st.subheader("🥧 Pie Chart")
 
-        st.line_chart(df.set_index("Month")[value_col])
-        return
+        try:
+            pie_data = df.set_index(cat_cols[0])[numeric_cols[0]]
+            st.pyplot(pie_data.plot.pie(autopct="%1.1f%%").get_figure())
+        except:
+            pass
 
-    # --------------------------
-    # TIME SERIES (DATE)
-    # --------------------------
-    if "Date" in df.columns:
-
-        df = df.sort_values("Date")
-
-        st.line_chart(df.set_index("Date")[value_col])
-        return
-
-    # --------------------------
-    # PIE CHART (Region/Product)
-    # --------------------------
-    if "Region" in df.columns or "Product" in df.columns:
-
-        col1 = df.columns[0]
-        col2 = value_col
-
-        fig = plot_pie(df, col1, col2)
-        st.pyplot(fig)
-        return
-
-    # --------------------------
-    # BAR CHART
-    # --------------------------
-    if df.shape[1] >= 2:
-
-        col1 = df.columns[0]
-        col2 = value_col
-
-        fig = plot_bar(df, col1, col2, f"{col2} by {col1}")
-        st.pyplot(fig)
-        return
-
-    # --------------------------
-    # FALLBACK
-    # --------------------------
+    # ---------------- DATA TABLE ----------------
+    st.subheader("📋 Data Table")
     st.dataframe(df)
