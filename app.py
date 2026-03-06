@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 
-# ---------------- IMPORT MODULES ----------------
+# ---------------- IMPORT MODULEFS ----------------
 from modules.analytics_engine import (
     top_products,
     total_sales,
@@ -17,7 +17,7 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-
+from modules.ai_data_analyst import generate_analysis_code, execute_generated_code
 # GROQ AI
 from modules.groq_ai import generate_ai_response, suggest_business_questions
 
@@ -213,14 +213,33 @@ with tab2:
 
                 if api_key:
 
-                    st.info("Using AI to analyze your question...")
+                    st.info("AI generating analysis...")
 
-                    ai_response = generate_ai_response(api_key, query, df)
+                    # Generate pandas code using AI
+                    code = generate_analysis_code(api_key, query, df)
 
-                    with st.chat_message("assistant"):
-                        st.write(ai_response)
+                    st.subheader("Generated Python Code")
+                    st.code(code)
 
-                    response_text = ""
+                    # Execute the generated code
+                    result = execute_generated_code(code, df)
+
+                    st.subheader("Result")
+
+                    if isinstance(result, pd.DataFrame):
+
+                        st.dataframe(result)
+
+                        # automatic charts
+                        auto_visualize(result)
+
+                        # optional insight generation
+                        insight = generate_business_insight(result)
+                        st.info(insight)
+
+                    else:
+
+                        st.write(result)
 
                 else:
 
