@@ -40,32 +40,29 @@ st.set_page_config(
 st.markdown("""
 <style>
 
+/* Page background */
 .main {
-    background-color: #f0f2f6;
+    background-color: #0e1117;
 }
 
-h1 {
-    color: #1f4e79;
-}
-
-h2, h3 {
-    color: #2c3e50;
-}
-
-.stButton button {
-    background-color: #1f77b4;
-    color: white;
-    border-radius: 8px;
-}
-
-.stButton button:hover {
-    background-color: #125a9c;
-}
-
-.stMetric {
+/* Metric cards */
+[data-testid="stMetric"] {
     background-color: white;
-    padding: 10px;
-    border-radius: 10px;
+    padding: 15px;
+    border-radius: 12px;
+    color: black !important;
+}
+
+/* Metric value (numbers) */
+[data-testid="stMetricValue"] {
+    color: black !important;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Metric label */
+[data-testid="stMetricLabel"] {
+    color: #555 !important;
 }
 
 </style>
