@@ -10,34 +10,35 @@ def auto_visualize(df):
     numeric_cols = df.select_dtypes(include="number").columns.tolist()
     cat_cols = df.select_dtypes(include="object").columns.tolist()
 
+    st.subheader("📊 Visual Analysis")
+
     # ---------------- BAR CHART ----------------
     if len(cat_cols) > 0 and len(numeric_cols) > 0:
-
-        st.subheader("📊 Bar Chart")
 
         try:
             st.bar_chart(df.set_index(cat_cols[0])[numeric_cols[0]])
         except:
             st.bar_chart(df[numeric_cols])
 
-    # ---------------- LINE CHART ----------------
-    if "Month" in df.columns and len(numeric_cols) > 0:
+    # ---------------- LINE CHART (time data) ----------------
+    time_cols = ["Month", "Date", "Year", "Quarter"]
 
-        st.subheader("📈 Line Chart")
+    for col in time_cols:
+        if col in df.columns and len(numeric_cols) > 0:
+            try:
+                st.line_chart(df.set_index(col)[numeric_cols[0]])
+                break
+            except:
+                pass
 
-        try:
-            st.line_chart(df.set_index("Month")[numeric_cols[0]])
-        except:
-            st.line_chart(df[numeric_cols])
-
-    # ---------------- PIE CHART ----------------
+    # ---------------- PIE CHART (limit categories) ----------------
     if len(cat_cols) > 0 and len(numeric_cols) > 0:
-
-        st.subheader("🥧 Pie Chart")
 
         try:
             pie_data = df.set_index(cat_cols[0])[numeric_cols[0]]
-            st.pyplot(pie_data.plot.pie(autopct="%1.1f%%").get_figure())
+
+            if len(pie_data) <= 10:
+                st.pyplot(pie_data.plot.pie(autopct="%1.1f%%").get_figure())
         except:
             pass
 

@@ -218,7 +218,7 @@ with tab2:
                     st.info("AI generating analysis...")
 
                     # Generate pandas code using AI
-                    code = generate_analysis_code(api_key, user_query, df)
+                    code = generate_analysis_code(api_key, query, df)
 
                     result = execute_code(code, df)
 
