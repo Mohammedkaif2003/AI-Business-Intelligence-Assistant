@@ -18,7 +18,7 @@ from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
 from modules.ai_code_generator import generate_analysis_code
-from modules.code_executor import execute_code, execute_generated_code
+from modules.code_executor import execute_code
 from modules.question_suggester import suggest_questions
 # GROQ AI
 from modules.groq_ai import generate_ai_response, suggest_business_questions
@@ -222,13 +222,7 @@ with tab2:
 
                     result = execute_code(code, df)
 
-                    st.write(result)
-
                     st.code(code)
-                    # Execute the generated code
-                    result = execute_generated_code(code, df)
-
-                    st.subheader("Result")
 
                     if isinstance(result, pd.DataFrame):
 
