@@ -18,6 +18,8 @@ from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
 from modules.ai_data_analyst import generate_analysis_code, execute_generated_code
+from modules.ai_code_generator import generate_analysis_code
+from modules.code_executor import execute_code
 # GROQ AI
 from modules.groq_ai import generate_ai_response, suggest_business_questions
 
@@ -216,11 +218,13 @@ with tab2:
                     st.info("AI generating analysis...")
 
                     # Generate pandas code using AI
-                    code = generate_analysis_code(api_key, query, df)
+                    code = generate_analysis_code(api_key, user_query, df)
 
-                    st.subheader("Generated Python Code")
+                    result = execute_code(code, df)
+
+                    st.write(result)
+
                     st.code(code)
-
                     # Execute the generated code
                     result = execute_generated_code(code, df)
 
