@@ -17,12 +17,11 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-from modules.gemini_ai import generate_ai_response, suggest_business_questions
+from modules.groq_ai import generate_ai_response
 
 
 # ---------------- API KEY ----------------
-api_key = st.secrets["GEMINI_API_KEY"]
-
+api_key = st.secrets["GROQ_API_KEY"]
 # TEMP DEBUG LINE
 st.write("API Key Loaded:", bool(api_key))
 
