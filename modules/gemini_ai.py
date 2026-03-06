@@ -55,7 +55,7 @@ def suggest_business_questions(api_key, df):
     """
 
     response = client.models.generate_content(
-        model="gemini-1.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt
     )
 

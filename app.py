@@ -23,6 +23,8 @@ from modules.gemini_ai import generate_ai_response, suggest_business_questions
 # ---------------- API KEY ----------------
 api_key = st.secrets["GEMINI_API_KEY"]
 
+# TEMP DEBUG LINE
+st.write("API Key Loaded:", bool(api_key))
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
