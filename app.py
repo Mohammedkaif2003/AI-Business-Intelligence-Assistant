@@ -17,13 +17,17 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-from modules.groq_ai import generate_ai_response
+
+# GROQ AI
+from modules.groq_ai import generate_ai_response, suggest_business_questions
 
 
 # ---------------- API KEY ----------------
 api_key = st.secrets["GROQ_API_KEY"]
-# TEMP DEBUG LINE
+
+# TEMP DEBUG
 st.write("API Key Loaded:", bool(api_key))
+
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -55,13 +59,13 @@ df = pd.read_csv(uploaded_file)
 df = normalize_columns(df)
 columns = detect_columns(df)
 
-# Extract important columns
 product_col = columns.get("Product")
 region_col = columns.get("Region")
 revenue_col = columns.get("Revenue")
 date_col = columns.get("Date")
 
-# Convert date column
+
+# ---------------- DATE PROCESSING ----------------
 if date_col:
     df[date_col] = pd.to_datetime(df[date_col])
     df["Year"] = df[date_col].dt.year
@@ -140,7 +144,6 @@ with tab2:
 
     st.subheader("💬 Ask Business Questions")
 
-    # AI Suggestions
     if api_key:
 
         st.markdown("### 🤖 AI Suggested Questions")
@@ -219,7 +222,7 @@ with tab2:
 
                 else:
 
-                    response_text = "Please configure Gemini API key in Streamlit secrets."
+                    response_text = "Please configure GROQ API key in Streamlit secrets."
 
         except Exception as e:
             response_text = f"Error: {e}"
