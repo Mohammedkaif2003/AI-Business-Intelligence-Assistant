@@ -19,6 +19,7 @@ from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
 from modules.ai_code_generator import generate_analysis_code
 from modules.code_executor import execute_code, execute_generated_code
+from modules.question_suggester import suggest_questions
 # GROQ AI
 from modules.groq_ai import generate_ai_response, suggest_business_questions
 
@@ -258,16 +259,32 @@ with tab2:
 
         if result is not None:
 
-            st.dataframe(result)
-            auto_visualize(result)
+            st.subheader("📊 Analysis Result")
 
-            insight = generate_business_insight(result)
-            st.info(insight)
+            if isinstance(result, pd.DataFrame):
 
+                st.dataframe(result)
 
-# =====================================================
-# ================= REPORTS ===========================
-# =====================================================
+                # automatic charts
+                auto_visualize(result)
+
+                # generate business insight
+                insight = generate_business_insight(result)
+
+                st.subheader("🧠 Business Insight")
+                st.info(insight)
+
+                # AI follow-up suggestions
+                if api_key:
+
+                    suggestions = suggest_business_questions(api_key, query, df)
+
+                    st.subheader("💡 Suggested Follow-Up Questions")
+                    st.markdown(suggestions)
+
+            else:
+
+                st.write(result)
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================

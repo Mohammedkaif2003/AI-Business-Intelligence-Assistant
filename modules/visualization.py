@@ -58,7 +58,7 @@ def plot_forecast(monthly_data, forecast, conf_int=None):
 # --------------------------------------------------
 def plot_pie(df, label_col, value_col):
 
-    fig, ax = plt.subplots(figsize=(6, 6))
+    fig, ax = plt.subplots(figsize=(4, 4))
 
     if label_col not in df.columns or value_col not in df.columns:
         ax.text(0.5, 0.5, "Invalid columns", ha="center")
