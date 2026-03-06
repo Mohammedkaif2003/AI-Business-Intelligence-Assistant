@@ -34,3 +34,31 @@ def generate_ai_response(api_key, query, df):
     response = model.generate_content(prompt)
 
     return response.text
+
+def suggest_business_questions(api_key, df):
+
+    genai.configure(api_key=api_key)
+
+    model = genai.GenerativeModel("gemini-1.5-flash")
+
+    dataset_info = f"""
+    Dataset columns: {list(df.columns)}
+    Sample rows:
+    {df.head().to_string()}
+    """
+
+    prompt = f"""
+    You are a business intelligence expert.
+
+    Based on this dataset, suggest 5 useful business questions
+    an executive might ask.
+
+    Dataset:
+    {dataset_info}
+
+    Return short questions only.
+    """
+
+    response = model.generate_content(prompt)
+
+    return response.text

@@ -17,7 +17,7 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-from modules.gemini_ai import generate_ai_response
+from modules.gemini_ai import generate_ai_response, suggest_business_questions
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -125,7 +125,13 @@ if anomaly_data:
 with tab2:
 
     st.subheader("💬 Ask Business Questions")
+    if api_key:
 
+        st.markdown("### 🤖 AI Suggested Questions")
+
+        suggestions = suggest_business_questions(api_key, df)
+
+        st.info(suggestions)
     query = st.chat_input("Ask something about your business data...")
 
     if query:
