@@ -17,7 +17,7 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
-from modules.ai_query_engine import run_ai_query, execute_ai_code
+from modules.gemini_ai import generate_ai_response
 
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
@@ -33,6 +33,7 @@ tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "💬 AI Chat", "📄 Reports"])
 
 
 # ---------------- FILE UPLOAD ----------------
+api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
 st.sidebar.header("📂 Upload Dataset")
 
 uploaded_file = st.sidebar.file_uploader(
@@ -182,16 +183,20 @@ with tab2:
 
             else:
 
-                st.info("Using AI to analyze your question...")
+                if api_key:
 
-                code = run_ai_query(df, query)
+                    st.info("Using AI to analyze your question...")
 
-                st.subheader("Generated Python Code")
-                st.code(code)
+                    ai_response = generate_ai_response(api_key, query, df)
 
-                result_vars = execute_ai_code(code, df)
+                    with st.chat_message("assistant"):
+                        st.write(ai_response)
 
-                response_text = "AI generated analysis successfully."
+                    response_text = ""
+
+                else:
+
+                    response_text = "Please enter your Gemini API key to get AI insights."
 
         except Exception as e:
             response_text = f"Error: {e}"
@@ -207,10 +212,7 @@ with tab2:
             insight = generate_business_insight(result)
             st.info(insight)
 
-        elif 'result' in locals():
 
-            st.subheader("AI Analysis Result")
-            st.write(result_vars)
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
