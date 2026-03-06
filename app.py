@@ -17,6 +17,8 @@ from modules.auto_visualizer import auto_visualize
 from modules.data_loader import normalize_columns, detect_columns
 from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
+from modules.ai_query_engine import run_ai_query, execute_ai_code
+
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Business Intelligence Assistant",
@@ -179,7 +181,17 @@ with tab2:
                     st.pyplot(fig)
 
             else:
-                response_text = "Sorry, I couldn't understand that question."
+
+                st.info("Using AI to analyze your question...")
+
+                code = run_ai_query(df, query)
+
+                st.subheader("Generated Python Code")
+                st.code(code)
+
+                result_vars = execute_ai_code(code, df)
+
+                response_text = "AI generated analysis successfully."
 
         except Exception as e:
             response_text = f"Error: {e}"
@@ -188,11 +200,17 @@ with tab2:
             st.write(response_text)
 
         if result is not None:
+
             st.dataframe(result)
             auto_visualize(result)
+
             insight = generate_business_insight(result)
             st.info(insight)
 
+        elif 'result' in locals():
+
+            st.subheader("AI Analysis Result")
+            st.write(result_vars)
 # =====================================================
 # ================= REPORTS ===========================
 # =====================================================
