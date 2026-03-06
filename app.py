@@ -144,13 +144,15 @@ with tab2:
 
     st.subheader("💬 Ask Business Questions")
 
-    if api_key:
+    st.markdown("### 🤖 Suggested Questions")
 
-        st.markdown("### 🤖 AI Suggested Questions")
-
-        suggestions = suggest_business_questions(api_key, df)
-
-        st.info(suggestions)
+    st.info("""
+    • Which region generates the highest revenue?
+    • Which product has declining sales?
+    • What is the monthly revenue trend?
+    • Which region contributes most to revenue?
+    • Forecast revenue for the next quarter.
+    """)
 
     query = st.chat_input("Ask something about your business data...")
 
