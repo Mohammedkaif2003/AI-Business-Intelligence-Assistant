@@ -1,45 +1,9 @@
-import google.generativeai as genai
+from google import genai
 
 
 def generate_ai_response(api_key, query, df):
 
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
-
-    # Give AI dataset context
-    dataset_info = f"""
-    Dataset Columns: {list(df.columns)}
-    Number of rows: {len(df)}
-
-    First 5 rows:
-    {df.head().to_string()}
-    """
-
-    prompt = f"""
-    You are a business intelligence analyst.
-
-    Dataset info:
-    {dataset_info}
-
-    User question:
-    {query}
-
-    Answer with:
-    1. Analysis
-    2. Business insight
-    3. Recommendation
-    """
-
-    response = model.generate_content(prompt)
-
-    return response.text
-
-def suggest_business_questions(api_key, df):
-
-    genai.configure(api_key=api_key)
-
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=api_key)
 
     dataset_info = f"""
     Dataset columns: {list(df.columns)}
@@ -48,17 +12,51 @@ def suggest_business_questions(api_key, df):
     """
 
     prompt = f"""
-    You are a business intelligence expert.
+    You are a business intelligence analyst.
 
-    Based on this dataset, suggest 5 useful business questions
-    an executive might ask.
+    Dataset information:
+    {dataset_info}
+
+    User question:
+    {query}
+
+    Provide:
+    - Analysis
+    - Business insight
+    - Recommendation
+    """
+
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=prompt
+    )
+
+    return response.text
+
+
+def suggest_business_questions(api_key, df):
+
+    client = genai.Client(api_key=api_key)
+
+    dataset_info = f"""
+    Dataset columns: {list(df.columns)}
+    Sample rows:
+    {df.head().to_string()}
+    """
+
+    prompt = f"""
+    Suggest 5 useful business questions that an executive might ask
+    based on this dataset.
 
     Dataset:
     {dataset_info}
 
-    Return short questions only.
+    Return short bullet points.
     """
 
-    response = model.generate_content(prompt)
+    response = client.models.generate_content(
+        model="gemini-1.5-flash",
+        contents=prompt
+    )
 
     return response.text

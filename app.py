@@ -19,6 +19,11 @@ from modules.insight_engine import generate_business_insight
 from modules.report_generator import generate_pdf
 from modules.gemini_ai import generate_ai_response, suggest_business_questions
 
+
+# ---------------- API KEY ----------------
+api_key = st.secrets["GEMINI_API_KEY"]
+
+
 # ---------------- PAGE CONFIG ----------------
 st.set_page_config(
     page_title="AI Business Intelligence Assistant",
@@ -33,11 +38,10 @@ tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "💬 AI Chat", "📄 Reports"])
 
 
 # ---------------- FILE UPLOAD ----------------
-api_key = st.sidebar.text_input("Enter Gemini API Key", type="password")
-st.sidebar.header("📂 Upload Dataset")
+st.subheader("📂 Upload Dataset")
 
-uploaded_file = st.sidebar.file_uploader(
-    "Upload CSV dataset",
+uploaded_file = st.file_uploader(
+    "Upload your business dataset (CSV)",
     type=["csv"]
 )
 
@@ -64,8 +68,11 @@ if date_col:
 
 
 # ---------------- YEAR SELECTION ----------------
-available_years = sorted(df["Year"].unique())
-selected_year = st.sidebar.selectbox("Select Year", available_years)
+if "Year" in df.columns:
+    available_years = sorted(df["Year"].unique())
+    selected_year = st.sidebar.selectbox("Select Year", available_years)
+else:
+    selected_year = None
 
 
 # =====================================================
@@ -75,7 +82,10 @@ with tab1:
 
     st.subheader("📈 Key Business Metrics")
 
-    year_df = df[df["Year"] == selected_year]
+    if selected_year:
+        year_df = df[df["Year"] == selected_year]
+    else:
+        year_df = df
 
     total_revenue = year_df[revenue_col].sum()
 
@@ -100,24 +110,27 @@ with tab1:
 
     st.dataframe(region_data)
     auto_visualize(region_data)
-st.subheader("⚠ Revenue Anomaly Detection")
 
-anomaly_data = detect_revenue_anomalies(df)
+    # ---------- Anomaly Detection ----------
+    st.subheader("⚠ Revenue Anomaly Detection")
 
-if anomaly_data:
+    anomaly_data = detect_revenue_anomalies(df)
 
-    monthly, anomalies = anomaly_data
+    if anomaly_data:
 
-    if not anomalies.empty:
+        monthly, anomalies = anomaly_data
 
-        for date, value in anomalies.items():
+        if not anomalies.empty:
 
-            st.warning(
-                f"Anomaly detected: {date.strftime('%B %Y')} revenue = {value:,.0f}"
-            )
+            for date, value in anomalies.items():
 
-    else:
-        st.success("No anomalies detected in revenue trends.")
+                st.warning(
+                    f"Anomaly detected: {date.strftime('%B %Y')} revenue = {value:,.0f}"
+                )
+
+        else:
+            st.success("No anomalies detected in revenue trends.")
+
 
 # =====================================================
 # ================= AI CHAT ===========================
@@ -125,6 +138,8 @@ if anomaly_data:
 with tab2:
 
     st.subheader("💬 Ask Business Questions")
+
+    # AI Suggestions
     if api_key:
 
         st.markdown("### 🤖 AI Suggested Questions")
@@ -132,6 +147,7 @@ with tab2:
         suggestions = suggest_business_questions(api_key, df)
 
         st.info(suggestions)
+
     query = st.chat_input("Ask something about your business data...")
 
     if query:
@@ -202,13 +218,15 @@ with tab2:
 
                 else:
 
-                    response_text = "Please enter your Gemini API key to get AI insights."
+                    response_text = "Please configure Gemini API key in Streamlit secrets."
 
         except Exception as e:
             response_text = f"Error: {e}"
 
-        with st.chat_message("assistant"):
-            st.write(response_text)
+        if response_text:
+
+            with st.chat_message("assistant"):
+                st.write(response_text)
 
         if result is not None:
 
