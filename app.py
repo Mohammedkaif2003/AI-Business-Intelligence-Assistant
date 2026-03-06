@@ -37,16 +37,57 @@ st.set_page_config(
     page_icon="📊",
     layout="wide"
 )
+st.markdown("""
+<style>
 
+.main {
+    background-color: #f5f7fb;
+}
+
+h1 {
+    color: #1f4e79;
+}
+
+h2, h3 {
+    color: #2c3e50;
+}
+
+.stButton button {
+    background-color: #1f77b4;
+    color: white;
+    border-radius: 8px;
+}
+
+.stButton button:hover {
+    background-color: #125a9c;
+}
+
+.stMetric {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+</style>
+""", unsafe_allow_html=True)
 st.title("📊 AI Business Intelligence Assistant")
-st.markdown("### Conversational Business Analytics System")
 
-tab1, tab2, tab3 = st.tabs(["📊 Dashboard", "💬 AI Chat", "📄 Reports"])
+st.markdown(
+"""
+AI-powered conversational analytics platform for business data.
+Upload any dataset and ask questions to generate insights.
+"""
+)
+
+tab1, tab2, tab3 = st.tabs([
+    "📊 Business Dashboard",
+    "🤖 AI Data Analyst",
+    "📑 Executive Reports"
+])
 
 
 # ---------------- FILE UPLOAD ----------------
 st.subheader("📂 Upload Dataset")
-
 uploaded_file = st.file_uploader(
     "Upload your business dataset (CSV)",
     type=["csv"]
@@ -88,7 +129,7 @@ else:
 with tab1:
 
     st.subheader("📈 Key Business Metrics")
-
+    st.divider()
     if selected_year:
         year_df = df[df["Year"] == selected_year]
     else:
@@ -111,9 +152,20 @@ with tab1:
 
     col1, col2, col3 = st.columns(3)
 
-    col1.metric("Total Revenue", f"{total_revenue:,.0f}")
-    col2.metric("Units Sold", f"{total_units:,.0f}")
-    col3.metric("Top Region", top_region)
+    col1.metric(
+        label="💰 Total Revenue",
+        value=f"${total_revenue:,.0f}",
+    )
+
+    col2.metric(
+        label="📦 Units Sold",
+        value=f"{total_units:,.0f}",
+    )
+
+    col3.metric(
+        label="🌍 Top Region",
+        value=top_region
+    )
 
     st.dataframe(region_data)
     auto_visualize(region_data)
@@ -145,7 +197,7 @@ with tab1:
 with tab2:
 
     st.subheader("💬 Ask Business Questions")
-
+    st.divider()
     st.markdown("### 🤖 Suggested Questions")
 
     st.info("""
@@ -286,7 +338,7 @@ with tab2:
 with tab3:
 
     st.subheader("📄 Generate Executive Report")
-
+    st.divider()
     if st.button("Generate PDF Report"):
 
         file_path = generate_pdf(

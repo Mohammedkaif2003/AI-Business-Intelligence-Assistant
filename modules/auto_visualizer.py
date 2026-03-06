@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 
 
 def auto_visualize(df):
@@ -12,36 +13,52 @@ def auto_visualize(df):
 
     st.subheader("📊 Visual Analysis")
 
-    # ---------------- BAR CHART ----------------
+    # ---------- BAR CHART ----------
     if len(cat_cols) > 0 and len(numeric_cols) > 0:
 
-        try:
-            st.bar_chart(df.set_index(cat_cols[0])[numeric_cols[0]])
-        except:
-            st.bar_chart(df[numeric_cols])
+        fig = px.bar(
+            df,
+            x=cat_cols[0],
+            y=numeric_cols[0],
+            color=cat_cols[0],
+            title=f"{numeric_cols[0]} by {cat_cols[0]}"
+        )
 
-    # ---------------- LINE CHART (time data) ----------------
-    time_cols = ["Month", "Date", "Year", "Quarter"]
+        st.plotly_chart(fig, use_container_width=True)
+
+    # ---------- LINE CHART ----------
+    time_cols = ["Month", "Date", "Year"]
 
     for col in time_cols:
-        if col in df.columns and len(numeric_cols) > 0:
-            try:
-                st.line_chart(df.set_index(col)[numeric_cols[0]])
-                break
-            except:
-                pass
 
-    # ---------------- PIE CHART (limit categories) ----------------
+        if col in df.columns and len(numeric_cols) > 0:
+
+            fig = px.line(
+                df,
+                x=col,
+                y=numeric_cols[0],
+                markers=True,
+                title=f"{numeric_cols[0]} Trend"
+            )
+
+            st.plotly_chart(fig, use_container_width=True)
+
+            break
+
+    # ---------- PIE CHART ----------
     if len(cat_cols) > 0 and len(numeric_cols) > 0:
 
-        try:
-            pie_data = df.set_index(cat_cols[0])[numeric_cols[0]]
+        if len(df) <= 10:
 
-            if len(pie_data) <= 10:
-                st.pyplot(pie_data.plot.pie(autopct="%1.1f%%").get_figure())
-        except:
-            pass
+            fig = px.pie(
+                df,
+                names=cat_cols[0],
+                values=numeric_cols[0],
+                title=f"{numeric_cols[0]} Distribution"
+            )
 
-    # ---------------- DATA TABLE ----------------
+            st.plotly_chart(fig, use_container_width=True)
+
+    # ---------- DATA TABLE ----------
     st.subheader("📋 Data Table")
     st.dataframe(df)
